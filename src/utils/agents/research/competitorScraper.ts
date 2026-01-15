@@ -9,6 +9,7 @@
 import { COMPETITORS } from '../config/competitors';
 import type { CompetitorProfile } from '../knowledge/competitorProfiles';
 import { updateCompetitorProfile } from '../knowledge/competitorProfiles';
+import { parseRSSFeed, fetchPostContent } from './rssParser';
 
 export interface ScrapedPost {
   title: string;
@@ -28,21 +29,31 @@ export interface ScrapedPost {
  */
 export async function scrapeRSSFeed(url: string): Promise<ScrapedPost[]> {
   try {
-    // In production, use a proper RSS parser
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch RSS: ${response.statusText}`);
-    }
+    const rssItems = await parseRSSFeed(url);
     
-    const text = await response.text();
-    // Parse RSS XML (simplified - use a library like 'rss-parser' in production)
     const posts: ScrapedPost[] = [];
     
-    // Extract posts from RSS (this is simplified - use proper parser)
-    const titleMatches = text.matchAll(/<title><!\[CDATA\[(.*?)\]\]><\/title>/g);
-    const linkMatches = text.matchAll(/<link>(.*?)<\/link>/g);
+    for (const item of rssItems.slice(0, 10)) { // Analyze top 10 posts
+      // Estimate word count from description
+      const wordCount = item.description.split(/\s+/).filter(w => w.length > 0).length;
+      
+      // Extract headings from description (simplified)
+      const headings: string[] = [];
+      
+      posts.push({
+        title: item.title,
+        url: item.link,
+        content: item.description,
+        wordCount: wordCount * 10, // Rough estimate (description is usually excerpt)
+        publishDate: item.pubDate,
+        headings,
+        links: {
+          internal: 0, // Would need full content
+          external: 0,
+        },
+      });
+    }
     
-    // This is a placeholder - implement proper RSS parsing
     return posts;
   } catch (error) {
     console.error(`Error scraping RSS feed ${url}:`, error);
