@@ -103,12 +103,13 @@ const seo = {
           <div class="mt-4">
             <button 
               id="run-all-research-btn"
-              onclick="runAllResearch()"
+              onclick="window.runAllResearch(event)"
               class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
             >
               Run Full Competitor Research
             </button>
             <p class="text-xs text-gray-500 mt-2">This will scrape and analyze all competitors</p>
+            <p class="text-xs text-blue-600 mt-1">💡 Check browser console (F12) for detailed logs</p>
           </div>
         </div>
       </div>
@@ -251,51 +252,154 @@ const seo = {
       }
     }
 
-    async function runAllResearch() {
-      if (!confirm('This will analyze all competitors via RSS feeds. This may take 30-60 seconds. Continue?')) return;
-      
-      const button = document.getElementById('run-all-research-btn') || event?.target;
-      showLoading(button, 'Researching all competitors...');
-      
-      // Show progress
-      const progressDiv = document.createElement('div');
-      progressDiv.id = 'research-progress';
-      progressDiv.className = 'mt-4 p-4 bg-blue-50 border border-blue-200 rounded';
-      progressDiv.innerHTML = '<p class="text-sm text-blue-700">⏳ Starting research... This will take 30-60 seconds.</p>';
-      button.parentElement.appendChild(progressDiv);
+    async function runAllResearch(event) {
+      console.log('🔵 [RESEARCH] Button clicked!', { event, timestamp: new Date().toISOString() });
       
       try {
+        if (!confirm('This will analyze all competitors via RSS feeds. This may take 30-60 seconds. Continue?')) {
+          console.log('🔵 [RESEARCH] User cancelled');
+          return;
+        }
+        
+        console.log('🔵 [RESEARCH] User confirmed, starting research...');
+        
+        // Try multiple ways to find the button
+        const buttonById = document.getElementById('run-all-research-btn');
+        const buttonByEvent = event?.target;
+        const buttonByQuery = document.querySelector('button[onclick*="runAllResearch"]');
+        const button = buttonById || buttonByEvent || buttonByQuery;
+        
+        console.log('🔵 [RESEARCH] Button found:', {
+          byId: !!buttonById,
+          byEvent: !!buttonByEvent,
+          byQuery: !!buttonByQuery,
+          finalButton: button,
+          buttonText: button?.textContent,
+        });
+        
+        if (!button) {
+          console.error('🔴 [RESEARCH] ERROR: Could not find button element!');
+          alert('❌ Error: Could not find button. Check console for details.');
+          return;
+        }
+        
+        showLoading(button, 'Researching all competitors...');
+        console.log('🔵 [RESEARCH] Loading state set on button');
+        
+        // Show progress
+        const progressDiv = document.createElement('div');
+        progressDiv.id = 'research-progress';
+        progressDiv.className = 'mt-4 p-4 bg-blue-50 border border-blue-200 rounded';
+        progressDiv.innerHTML = '<p class="text-sm text-blue-700">⏳ Starting research... This will take 30-60 seconds.</p>';
+        
+        const buttonParent = button.parentElement;
+        console.log('🔵 [RESEARCH] Button parent:', buttonParent);
+        
+        if (buttonParent) {
+          buttonParent.appendChild(progressDiv);
+          console.log('🔵 [RESEARCH] Progress div added to DOM');
+        } else {
+          console.error('🔴 [RESEARCH] ERROR: Button has no parent element!');
+        }
+        
         // Use local API in dev, Netlify Function in prod
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         const apiUrl = isLocal 
           ? '/api/research/competitors-local'
           : '/.netlify/functions/research-competitors';
         
-        progressDiv.innerHTML = '<p class="text-sm text-blue-700">⏳ Fetching competitor RSS feeds...</p>';
+        console.log('🔵 [RESEARCH] API Configuration:', {
+          hostname: window.location.hostname,
+          isLocal,
+          apiUrl,
+          fullUrl: window.location.origin + apiUrl,
+        });
         
+        progressDiv.innerHTML = '<p class="text-sm text-blue-700">⏳ Fetching competitor RSS feeds...</p>';
+        console.log('🔵 [RESEARCH] Making fetch request to:', apiUrl);
+        
+        const fetchStartTime = Date.now();
         const response = await fetch(apiUrl, {
           method: 'GET',
         });
+        const fetchDuration = Date.now() - fetchStartTime;
+        
+        console.log('🔵 [RESEARCH] Fetch response received:', {
+          status: response.status,
+          statusText: response.statusText,
+          ok: response.ok,
+          headers: Object.fromEntries(response.headers.entries()),
+          duration: `${fetchDuration}ms`,
+        });
         
         if (!response.ok) {
+          const errorText = await response.text();
+          console.error('🔴 [RESEARCH] HTTP Error:', {
+            status: response.status,
+            statusText: response.statusText,
+            body: errorText,
+          });
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         
+        console.log('🔵 [RESEARCH] Parsing JSON response...');
         const data = await response.json();
+        console.log('🔵 [RESEARCH] Response data:', {
+          success: data.success,
+          count: data.count,
+          profilesCount: data.profiles?.length,
+          hasError: !!data.error,
+          fullData: data,
+        });
         
         if (data.success) {
-          progressDiv.innerHTML = `<p class="text-sm text-green-700">✅ Analyzed ${data.count || data.profiles.length} competitors!</p><p class="text-xs text-gray-600 mt-1">Found ${data.profiles.reduce((sum, p) => sum + (p.samplePosts?.length || 0), 0)} posts total.</p>`;
+          const postsCount = data.profiles.reduce((sum, p) => sum + (p.samplePosts?.length || 0), 0);
+          progressDiv.innerHTML = `<p class="text-sm text-green-700">✅ Analyzed ${data.count || data.profiles.length} competitors!</p><p class="text-xs text-gray-600 mt-1">Found ${postsCount} posts total.</p>`;
           showSuccess(`Research complete! Analyzed ${data.count || data.profiles.length} competitors. Refreshing...`);
+          console.log('✅ [RESEARCH] Success! Reloading page in 2 seconds...');
           setTimeout(() => location.reload(), 2000);
         } else {
+          console.error('🔴 [RESEARCH] API returned success: false', data);
           throw new Error(data.error || 'Unknown error');
         }
       } catch (error) {
-        console.error('Error:', error);
-        progressDiv.innerHTML = `<p class="text-sm text-red-700">❌ Error: ${error.message}</p><p class="text-xs text-gray-600 mt-1">Check browser console for details.</p>`;
+        console.error('🔴 [RESEARCH] Exception caught:', {
+          error,
+          message: error.message,
+          stack: error.stack,
+          name: error.name,
+        });
+        
+        const progressDiv = document.getElementById('research-progress');
+        if (progressDiv) {
+          progressDiv.innerHTML = `<p class="text-sm text-red-700">❌ Error: ${error.message}</p><p class="text-xs text-gray-600 mt-1">Check browser console for details.</p>`;
+        }
+        
         showError(`Research failed: ${error.message}`);
-        hideLoading(button);
+        
+        const button = document.getElementById('run-all-research-btn') || document.querySelector('button[onclick*="runAllResearch"]');
+        if (button) {
+          hideLoading(button);
+        }
       }
     }
+    
+    // Make function globally available and add click listener
+    window.runAllResearch = runAllResearch;
+    console.log('🔵 [RESEARCH] runAllResearch function registered globally');
+    
+    // Also try to attach event listener directly
+    document.addEventListener('DOMContentLoaded', () => {
+      const button = document.getElementById('run-all-research-btn');
+      if (button) {
+        console.log('🔵 [RESEARCH] Found button on DOMContentLoaded, attaching click listener');
+        button.addEventListener('click', (e) => {
+          e.preventDefault();
+          runAllResearch(e);
+        });
+      } else {
+        console.warn('⚠️ [RESEARCH] Button not found on DOMContentLoaded');
+      }
+    });
   </script>
 </BaseLayout>
