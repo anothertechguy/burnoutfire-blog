@@ -18,218 +18,223 @@ const seo = {
 };
 ---
 
-<BaseLayout title="Agent Learnings" description="Agent knowledge base" seo={seo}>
+<BaseLayout title="Agent Intelligence" description="What the AI knows about you and your competition" seo={seo}>
   <div class="min-h-screen bg-gray-50 py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="mb-8">
         <a href="/admin" class="text-blue-600 hover:text-blue-800 mb-4 inline-block">← Back to Dashboard</a>
-        <h1 class="text-3xl font-bold text-gray-900">Agent Learnings & Knowledge Base</h1>
-        <p class="text-gray-600 mt-2">See what the agents have learned about you, competitors, and strategy</p>
+        <h1 class="text-3xl font-bold text-gray-900">Agent Intelligence</h1>
+        <p class="text-gray-600 mt-2">See what the AI has learned about you, your competitors, and your content strategy</p>
       </div>
 
-      <!-- User Profile -->
-      <div class="bg-white rounded-lg shadow p-6 mb-6">
-        <h2 class="text-xl font-semibold text-gray-900 mb-4">Your Profile</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h3 class="font-medium text-gray-900 mb-2">Current Situation</h3>
-            <ul class="text-sm text-gray-700 space-y-1">
-              <li>• Income Level: <strong class="capitalize">{userProfile.situation.incomeLevel}</strong></li>
-              <li>• Dual Income: <strong>{userProfile.situation.dualIncome ? 'Yes' : 'No'}</strong></li>
-              <li>• Savings Rate: <strong>{userProfile.situation.savingsRate}%</strong></li>
-              <li>• Strategy: <span class="text-xs block mt-1 p-2 bg-gray-50 rounded">{userProfile.situation.currentStrategy}</span></li>
-            </ul>
+      <!-- Value Proposition -->
+      <div class="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-6 mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-3">What This Page Shows You</h2>
+        <p class="text-gray-700 mb-4">
+          This is your AI's "brain" - everything it knows about you, your competitors, and your content strategy. 
+          The AI uses this knowledge to write content that matches your voice and beats your competition.
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          <div class="bg-white rounded p-3 border border-purple-100">
+            <div class="font-semibold text-gray-900 mb-1">👤 Your Profile</div>
+            <div class="text-gray-600">What the AI knows about you (income, goals, writing style)</div>
           </div>
-          <div>
-            <h3 class="font-medium text-gray-900 mb-2">Goals</h3>
-            <ul class="text-sm text-gray-700 space-y-1">
-              {userProfile.situation.goals.map(goal => (
-                <li>• {goal}</li>
-              ))}
-            </ul>
+          <div class="bg-white rounded p-3 border border-purple-100">
+            <div class="font-semibold text-gray-900 mb-1">🏆 Competitors</div>
+            <div class="text-gray-600">Analysis of 10+ competitor blogs and their best content</div>
+          </div>
+          <div class="bg-white rounded p-3 border border-purple-100">
+            <div class="font-semibold text-gray-900 mb-1">📈 Strategy</div>
+            <div class="text-gray-600">Content gaps, opportunities, and marketing plan</div>
           </div>
         </div>
-        <div class="mt-4 pt-4 border-t">
-          <h3 class="font-medium text-gray-900 mb-2">Writing Style Preferences</h3>
-          <div class="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span class="text-gray-600">Tone:</span>
-              <div class="flex flex-wrap gap-1 mt-1">
-                {userProfile.writingStyle.tone.map(t => (
-                  <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">{t}</span>
-                ))}
+      </div>
+
+      <!-- Your Profile -->
+      <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-xl font-semibold text-gray-900">Your Profile</h2>
+            <p class="text-sm text-gray-600 mt-1">What the AI knows about you (used to personalize content)</p>
+          </div>
+          <a href="/admin/profile" class="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700">
+            Edit Profile
+          </a>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-gray-50 rounded-lg p-4">
+            <h3 class="font-semibold text-gray-900 mb-3">Financial Situation</h3>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between">
+                <span class="text-gray-600">Income Level:</span>
+                <span class="font-medium text-gray-900 capitalize">{userProfile.situation.incomeLevel}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Dual Income:</span>
+                <span class="font-medium text-gray-900">{userProfile.situation.dualIncome ? 'Yes' : 'No'}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Savings Rate:</span>
+                <span class="font-medium text-gray-900">{userProfile.situation.savingsRate}%</span>
+              </div>
+              <div class="mt-3 pt-3 border-t border-gray-200">
+                <div class="text-gray-600 mb-1">Your Strategy:</div>
+                <div class="text-sm text-gray-700 bg-white p-2 rounded">{userProfile.situation.currentStrategy}</div>
               </div>
             </div>
-            <div>
-              <span class="text-gray-600">Voice:</span>
-              <p class="text-gray-700 mt-1 text-xs">{userProfile.writingStyle.voice}</p>
+          </div>
+
+          <div class="bg-gray-50 rounded-lg p-4">
+            <h3 class="font-semibold text-gray-900 mb-3">Goals & Preferences</h3>
+            <div class="space-y-2 text-sm">
+              <div>
+                <div class="text-gray-600 mb-1">Your Goals:</div>
+                <ul class="text-gray-700 space-y-1">
+                  {userProfile.situation.goals.map(goal => (
+                    <li class="flex items-center">
+                      <span class="text-green-600 mr-2">✓</span>
+                      {goal}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div class="mt-3 pt-3 border-t border-gray-200">
+                <div class="text-gray-600 mb-1">Writing Tone:</div>
+                <div class="flex flex-wrap gap-1">
+                  {userProfile.writingStyle.tone.map(t => (
+                    <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">{t}</span>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Writing Style Reasoning -->
-      <div class="bg-white rounded-lg shadow p-6 mb-6">
-        <h2 class="text-xl font-semibold text-gray-900 mb-4">Writing Style Reasoning</h2>
-        <div class="prose max-w-none text-sm text-gray-700 whitespace-pre-line bg-gray-50 p-4 rounded">
-          {getWritingStyleReasoning()}
         </div>
       </div>
 
       <!-- Competitor Profiles -->
       <div class="bg-white rounded-lg shadow p-6 mb-6">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xl font-semibold text-gray-900">Competitor Profiles</h2>
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="text-xl font-semibold text-gray-900">Competitor Analysis</h2>
+            <p class="text-sm text-gray-600 mt-1">
+              {competitorProfiles.length > 0 
+                ? `Analyzed ${competitorProfiles.length} competitors. See their strengths, weaknesses, and content gaps below.`
+                : 'No competitors analyzed yet. Click "Run Research" to analyze your competition.'}
+            </p>
+          </div>
           <button 
             id="run-competitor-research-btn"
-            class="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+            class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm"
           >
-            Run Research Now
+            🔍 Run Competitor Research
           </button>
         </div>
+
         {competitorProfiles.length > 0 ? (
-          <div class="space-y-4">
+          <div class="space-y-6">
             {competitorProfiles.map(profile => (
-              <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-500 transition-colors">
-                <div class="flex items-start justify-between mb-3">
+              <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between mb-4">
                   <div>
-                    <h3 class="font-semibold text-gray-900 mb-1">{profile.name}</h3>
-                    <p class="text-xs text-gray-600">{profile.focus}</p>
-                  </div>
-                  <span class="text-xs text-gray-500">
-                    Analyzed: {new Date(profile.lastAnalyzed).toLocaleDateString()}
-                  </span>
-                </div>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-3">
-                  <div>
-                    <span class="text-gray-600">Avg Word Count:</span>
-                    <span class="font-semibold ml-2 text-gray-900">{profile.content.averageWordCount}</span>
-                  </div>
-                  <div>
-                    <span class="text-gray-600">Readability:</span>
-                    <span class="font-semibold ml-2 text-gray-900">{profile.content.averageReadability}</span>
-                  </div>
-                  <div>
-                    <span class="text-gray-600">Strengths:</span>
-                    <span class="ml-2 text-gray-700">{profile.content.strengths.slice(0, 2).join(', ')}</span>
-                  </div>
-                  <div>
-                    <span class="text-gray-600">Weaknesses:</span>
-                    <span class="ml-2 text-gray-700">{profile.content.weaknesses.slice(0, 2).join(', ')}</span>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-1">{profile.name}</h3>
+                    <p class="text-sm text-gray-600">{profile.focus}</p>
+                    <p class="text-xs text-gray-500 mt-1">Last analyzed: {new Date(profile.lastAnalyzed).toLocaleDateString()}</p>
                   </div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t">
-                  <div>
-                    <p class="text-sm font-medium text-gray-900 mb-1">Content Gaps (Our Opportunities):</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div class="bg-blue-50 rounded-lg p-3">
+                    <div class="text-xs text-gray-600 mb-1">Average Post Length</div>
+                    <div class="text-2xl font-bold text-gray-900">{profile.content.averageWordCount.toLocaleString()}</div>
+                    <div class="text-xs text-gray-500 mt-1">words per post</div>
+                  </div>
+                  <div class="bg-green-50 rounded-lg p-3">
+                    <div class="text-xs text-gray-600 mb-1">Content Gaps Found</div>
+                    <div class="text-2xl font-bold text-gray-900">{profile.opportunities.gaps.length}</div>
+                    <div class="text-xs text-gray-500 mt-1">topics they're missing</div>
+                  </div>
+                  <div class="bg-yellow-50 rounded-lg p-3">
+                    <div class="text-xs text-gray-600 mb-1">Weaknesses Identified</div>
+                    <div class="text-2xl font-bold text-gray-900">{profile.content.weaknesses.length}</div>
+                    <div class="text-xs text-gray-500 mt-1">areas you can outperform</div>
+                  </div>
+                </div>
+
+                {profile.opportunities.gaps.length > 0 && (
+                  <div class="bg-green-50 border-l-4 border-green-500 rounded-r-lg p-4 mb-4">
+                    <h4 class="font-semibold text-gray-900 mb-2">🎯 Your Opportunities (What They're Missing):</h4>
                     <ul class="text-sm text-gray-700 space-y-1">
                       {profile.opportunities.gaps.map(gap => (
                         <li class="flex items-start">
-                          <span class="text-green-600 mr-2">✓</span>
+                          <span class="text-green-600 mr-2 mt-0.5">•</span>
                           <span>{gap}</span>
                         </li>
                       ))}
                     </ul>
+                    <p class="text-xs text-gray-600 mt-3 italic">
+                      💡 These are topics {profile.name} isn't covering well. You can create content here and likely outrank them.
+                    </p>
                   </div>
-                  <div>
-                    <p class="text-sm font-medium text-gray-900 mb-1">Unique Angles:</p>
+                )}
+
+                {profile.content.weaknesses.length > 0 && (
+                  <div class="bg-yellow-50 border-l-4 border-yellow-500 rounded-r-lg p-4">
+                    <h4 class="font-semibold text-gray-900 mb-2">⚡ How You Can Outperform Them:</h4>
                     <ul class="text-sm text-gray-700 space-y-1">
-                      {profile.opportunities.angles.map(angle => (
+                      {profile.content.weaknesses.map(weakness => (
                         <li class="flex items-start">
-                          <span class="text-blue-600 mr-2">→</span>
-                          <span>{angle}</span>
+                          <span class="text-yellow-600 mr-2 mt-0.5">•</span>
+                          <span>{weakness}</span>
                         </li>
                       ))}
                     </ul>
-                  </div>
-                </div>
-                {profile.samplePosts.length > 0 && (
-                  <div class="mt-3 pt-3 border-t">
-                    <p class="text-xs font-medium text-gray-700 mb-2">Sample Posts Analyzed:</p>
-                    <div class="space-y-1">
-                      {profile.samplePosts.slice(0, 3).map(post => (
-                        <div class="text-xs text-gray-600">
-                          • <a href={post.url} target="_blank" class="text-blue-600 hover:underline">{post.title}</a> ({post.wordCount} words)
-                        </div>
-                      ))}
-                    </div>
+                    <p class="text-xs text-gray-600 mt-3 italic">
+                      💡 Focus on these areas in your content to provide more value than {profile.name}.
+                    </p>
                   </div>
                 )}
               </div>
             ))}
           </div>
         ) : (
-          <div class="text-center py-12">
-            <p class="text-gray-600 mb-4">No competitor research completed yet.</p>
-            <p class="text-sm text-gray-500 mb-6">Click "Run Research Now" to analyze competitors via RSS feeds and build profiles.</p>
-            <button 
-              onclick="runCompetitorResearch()"
-              class="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
-            >
-              Run Competitor Research
-            </button>
+          <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-12 text-center">
+            <div class="text-4xl mb-4">🔍</div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">No Competitor Data Yet</h3>
+            <p class="text-gray-600 mb-4">
+              Click "Run Competitor Research" above to analyze your competition. 
+              This will show you what they're doing well, what they're missing, and where you can outrank them.
+            </p>
+            <p class="text-sm text-gray-500">
+              ⏱️ Takes 30-60 seconds. We'll analyze 10+ competitors and show you actionable insights.
+            </p>
           </div>
         )}
       </div>
 
-      <!-- Digital Marketing Plan -->
+      <!-- Marketing Plan -->
       <div class="bg-white rounded-lg shadow p-6 mb-6">
-        <h2 class="text-xl font-semibold text-gray-900 mb-4">Digital Marketing Plan</h2>
-        <div class="space-y-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Content Strategy</h2>
+        <p class="text-sm text-gray-600 mb-6">Based on competitor analysis, here's what topics to focus on</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h3 class="font-medium text-gray-900 mb-2">Positioning</h3>
-            <p class="text-sm text-gray-700 bg-gray-50 p-3 rounded">{marketingPlan.strategy.positioning}</p>
-          </div>
-          <div>
-            <h3 class="font-medium text-gray-900 mb-2">Unique Value Proposition</h3>
-            <p class="text-sm text-gray-700 bg-gray-50 p-3 rounded">{marketingPlan.strategy.uniqueValueProposition}</p>
-          </div>
-          <div>
-            <h3 class="font-medium text-gray-900 mb-2">Competitive Advantages</h3>
-            <ul class="text-sm text-gray-700 space-y-2">
-              {marketingPlan.strategy.competitiveAdvantage.map(adv => (
-                <li class="flex items-start">
-                  <span class="text-green-600 mr-2 mt-1">✓</span>
-                  <span>{adv}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h3 class="font-medium text-gray-900 mb-2">Content Gaps Identified</h3>
+            <h3 class="font-semibold text-gray-900 mb-3">High-Priority Topics</h3>
             <div class="space-y-3">
-              {marketingPlan.content.contentGaps.map(gap => (
-                <div class={`border-l-4 pl-3 py-2 ${
-                  gap.opportunity === 'high' 
-                    ? 'border-green-500 bg-green-50' 
-                    : gap.opportunity === 'medium'
-                    ? 'border-yellow-500 bg-yellow-50'
-                    : 'border-gray-500 bg-gray-50'
-                }`}>
-                  <p class="text-sm font-medium text-gray-900">{gap.topic}</p>
-                  <p class="text-xs text-gray-600 mt-1">Priority: <strong class="capitalize">{gap.opportunity}</strong> - {gap.reasoning}</p>
+              {marketingPlan.content.contentGaps.filter(g => g.opportunity === 'high').map(gap => (
+                <div class="border-l-4 border-green-500 pl-4 py-2 bg-green-50 rounded-r">
+                  <div class="font-medium text-gray-900">{gap.topic}</div>
+                  <div class="text-xs text-gray-600 mt-1">{gap.reasoning}</div>
                 </div>
               ))}
             </div>
           </div>
           <div>
-            <h3 class="font-medium text-gray-900 mb-2">SEO Strategy</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p class="text-xs font-medium text-gray-700 mb-1">Primary Keywords:</p>
-                <div class="flex flex-wrap gap-1">
-                  {marketingPlan.seo.primaryKeywords.map(kw => (
-                    <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">{kw}</span>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p class="text-xs font-medium text-gray-700 mb-1">SERP Opportunities:</p>
-                <ul class="text-xs text-gray-700 space-y-1">
-                  {marketingPlan.seo.serpOpportunities.map(opp => (
-                    <li>• {opp.keyword}: {opp.opportunity}</li>
-                  ))}
-                </ul>
-              </div>
+            <h3 class="font-semibold text-gray-900 mb-3">Target Keywords</h3>
+            <div class="flex flex-wrap gap-2">
+              {marketingPlan.seo.primaryKeywords.map(kw => (
+                <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded font-medium">{kw}</span>
+              ))}
             </div>
           </div>
         </div>
@@ -237,34 +242,36 @@ const seo = {
 
       <!-- Wide Moat Opportunities -->
       <div class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-xl font-semibold text-gray-900 mb-4">Wide Moat Opportunities</h2>
-        <p class="text-sm text-gray-600 mb-4">Niches with defensible competitive advantages and low competition</p>
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Best Content Opportunities</h2>
+        <p class="text-sm text-gray-600 mb-6">Topics with low competition where you can establish authority</p>
+        
         <div class="space-y-4">
-          {wideMoatOpportunities.map((opp, i) => (
+          {wideMoatOpportunities.slice(0, 5).map((opp, i) => (
             <div class="border border-gray-200 rounded-lg p-4 hover:border-purple-500 transition-colors">
-              <div class="flex items-start justify-between mb-3">
+              <div class="flex items-start justify-between">
                 <div class="flex-1">
                   <div class="flex items-center space-x-3 mb-2">
                     <span class="text-2xl font-bold text-gray-400">#{i + 1}</span>
-                    <h3 class="text-lg font-semibold text-gray-900">{opp.niche}</h3>
-                    <span class={`px-2 py-1 text-xs rounded font-medium ${
-                      opp.competition === 'very_low' 
-                        ? 'bg-green-100 text-green-800' 
-                        : opp.competition === 'low'
-                        ? 'bg-blue-100 text-blue-800'
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {opp.competition.replace('_', ' ')} competition
-                    </span>
+                    <div>
+                      <h3 class="text-lg font-semibold text-gray-900">{opp.niche}</h3>
+                      <p class="text-sm text-gray-600">Keyword: {opp.keyword}</p>
+                    </div>
                   </div>
-                  <p class="text-sm text-gray-700 mb-2"><strong>Keyword:</strong> {opp.keyword}</p>
-                  <p class="text-sm text-gray-700 mb-2"><strong>Moat:</strong> {opp.moat}</p>
-                  <p class="text-sm text-gray-700 mb-2"><strong>Strategy:</strong> {opp.strategy}</p>
+                  <div class="bg-purple-50 rounded-lg p-3 mb-3">
+                    <div class="text-sm font-medium text-gray-900 mb-1">Why This Is Your Opportunity:</div>
+                    <div class="text-sm text-gray-700">{opp.moat}</div>
+                  </div>
+                  <div class="text-sm text-gray-700">
+                    <strong>Strategy:</strong> {opp.strategy}
+                  </div>
                 </div>
                 <div class="text-right ml-4">
-                  <div class="text-sm text-gray-600">Timeline</div>
-                  <div class="text-lg font-bold text-gray-900">{opp.timeline}</div>
-                  <div class="text-xs text-gray-500 mt-1">Difficulty: {opp.difficulty}</div>
+                  <div class="text-sm text-gray-600">Difficulty</div>
+                  <div class="text-3xl font-bold text-gray-900">{opp.difficulty}</div>
+                  <div class="text-xs text-gray-500">/ 100</div>
+                  <div class="text-xs text-gray-600 mt-2">
+                    {opp.difficulty < 30 ? '🟢 Easy' : opp.difficulty < 60 ? '🟡 Moderate' : '🟠 Challenging'}
+                  </div>
                 </div>
               </div>
             </div>
@@ -276,31 +283,35 @@ const seo = {
 
   <script>
     async function runCompetitorResearch(event) {
-      console.log('🔵 [LEARNINGS] Button clicked!', { event, timestamp: new Date().toISOString() });
+      console.log('🔵 [LEARNINGS] Starting competitor research');
       
-      const button = event?.target || document.getElementById('run-competitor-research-btn');
-      const originalText = button.textContent;
+      const button = document.getElementById('run-competitor-research-btn') || event?.target;
+      const originalText = button?.textContent || '🔍 Run Competitor Research';
       button.disabled = true;
-      button.textContent = '⏳ Researching...';
+      button.innerHTML = '⏳ Analyzing...';
+      button.classList.add('opacity-75', 'cursor-not-allowed');
       
-      // Show progress indicator
-      const progressDiv = document.createElement('div');
-      progressDiv.className = 'mt-4 p-4 bg-blue-50 border border-blue-200 rounded';
-      progressDiv.innerHTML = '<p class="text-sm text-blue-700">⏳ Starting research... This will take 30-60 seconds.</p>';
-      button.parentElement.appendChild(progressDiv);
+      // Show progress message
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'fixed top-4 right-4 bg-blue-100 border border-blue-400 text-blue-700 px-6 py-4 rounded-lg shadow-lg z-50 max-w-md';
+      messageDiv.innerHTML = `
+        <div class="flex items-center space-x-3">
+          <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+          <div>
+            <div class="font-semibold">Analyzing Competitors...</div>
+            <div class="text-sm">This takes 30-60 seconds. Analyzing RSS feeds and scoring posts.</div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(messageDiv);
       
       try {
-        // Use local API in dev, Netlify Function in prod
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         const apiUrl = isLocal 
           ? '/api/research/competitors-local'
           : '/.netlify/functions/research-competitors';
         
-        progressDiv.innerHTML = '<p class="text-sm text-blue-700">⏳ Fetching competitor RSS feeds and analyzing content...</p>';
-        
-        const response = await fetch(apiUrl, {
-          method: 'GET',
-        });
+        const response = await fetch(apiUrl, { method: 'GET' });
         
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -309,49 +320,60 @@ const seo = {
         const data = await response.json();
         
         if (data.success) {
-          progressDiv.innerHTML = `<p class="text-sm text-green-700">✅ Analyzed ${data.count || data.profiles.length} competitors!</p><p class="text-xs text-gray-600 mt-1">Found ${data.profiles.reduce((sum, p) => sum + (p.samplePosts?.length || 0), 0)} posts analyzed.</p>`;
-          alert(`✅ Research complete! Analyzed ${data.count || data.profiles.length} competitors.\n\nRefresh page to see detailed profiles.`);
-          setTimeout(() => location.reload(), 2000);
+          messageDiv.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-6 py-4 rounded-lg shadow-lg z-50 max-w-md';
+          messageDiv.innerHTML = `
+            <div class="flex items-center space-x-3">
+              <div class="text-2xl">✅</div>
+              <div>
+                <div class="font-semibold">Analysis Complete!</div>
+                <div class="text-sm">Analyzed ${data.count || data.profiles.length} competitors. Found ${data.profiles.reduce((sum, p) => sum + (p.gaps?.length || 0), 0)} content gaps.</div>
+              </div>
+            </div>
+          `;
+          
+          setTimeout(() => {
+            messageDiv.remove();
+            location.reload();
+          }, 3000);
         } else {
           throw new Error(data.error || 'Unknown error');
         }
       } catch (error) {
         console.error('Error:', error);
-        progressDiv.innerHTML = `<p class="text-sm text-red-700">❌ Error: ${error.message}</p><p class="text-xs text-gray-600 mt-1">Check browser console for details.</p>`;
-        alert(`❌ Error running research: ${error.message}\n\nCheck browser console for details.`);
-      } finally {
+        messageDiv.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-lg shadow-lg z-50 max-w-md';
+        messageDiv.innerHTML = `
+          <div>
+            <div class="font-semibold">❌ Analysis Failed</div>
+            <div class="text-sm mt-1">${error.message}</div>
+            <div class="text-xs mt-2">Check browser console (F12) for details.</div>
+          </div>
+        `;
+        setTimeout(() => messageDiv.remove(), 5000);
         button.disabled = false;
         button.textContent = originalText;
+        button.classList.remove('opacity-75', 'cursor-not-allowed');
       }
     }
     
-    // Make function globally available
     window.runCompetitorResearch = runCompetitorResearch;
     
     // Attach event listener
-    function attachLearningsButtonListener() {
+    function attachButton() {
       const button = document.getElementById('run-competitor-research-btn');
       if (button) {
-        console.log('🔵 [LEARNINGS] Found button, attaching click listener');
         const newButton = button.cloneNode(true);
         button.parentNode?.replaceChild(newButton, button);
         newButton.addEventListener('click', (e) => {
           e.preventDefault();
-          e.stopPropagation();
-          console.log('🔵 [LEARNINGS] Button clicked via event listener');
           runCompetitorResearch(e);
         });
-        return true;
       }
-      return false;
     }
     
-    if (!attachLearningsButtonListener()) {
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', attachLearningsButtonListener);
-      } else {
-        setTimeout(attachLearningsButtonListener, 100);
-      }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', attachButton);
+    } else {
+      attachButton();
     }
   </script>
 </BaseLayout>

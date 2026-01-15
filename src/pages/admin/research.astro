@@ -5,6 +5,42 @@ import { SITE_CONFIG } from '../../config';
 
 const bestNiches = findBestNiches(10);
 
+// Helper to translate competition levels to human-readable
+function explainCompetition(level: string): { text: string; meaning: string; color: string } {
+  const explanations: Record<string, { text: string; meaning: string; color: string }> = {
+    'very_low': {
+      text: 'Very Easy to Rank',
+      meaning: 'Few competitors are targeting this. You can likely rank on page 1 within 3-6 months with good content.',
+      color: 'green'
+    },
+    'low': {
+      text: 'Easy to Rank',
+      meaning: 'Some competition exists, but it\'s manageable. With quality content, you can rank within 6-12 months.',
+      color: 'blue'
+    },
+    'medium': {
+      text: 'Moderate Competition',
+      meaning: 'Several competitors exist. You\'ll need strong, comprehensive content to rank. Expect 12-18 months.',
+      color: 'yellow'
+    },
+    'high': {
+      text: 'Tough Competition',
+      meaning: 'Many established sites compete here. Ranking will require exceptional content and time (18+ months).',
+      color: 'red'
+    }
+  };
+  return explanations[level] || { text: level, meaning: 'Unknown competition level', color: 'gray' };
+}
+
+function explainOpportunity(level: string): string {
+  const explanations: Record<string, string> = {
+    'high': 'This topic has high search volume and aligns perfectly with your brand. Strong potential for traffic and engagement.',
+    'medium': 'Moderate search interest. Good topic if you have a unique angle or can provide exceptional value.',
+    'low': 'Lower search volume, but might be worth it if it\'s highly relevant to your audience or fills a specific gap.'
+  };
+  return explanations[level] || 'Opportunity level not determined.';
+}
+
 const seo = {
   title: `Research Dashboard | ${SITE_CONFIG.title} Admin`,
   description: 'View research insights',
@@ -17,153 +53,291 @@ const seo = {
       <div class="mb-8">
         <a href="/admin" class="text-blue-600 hover:text-blue-800 mb-4 inline-block">← Back to Dashboard</a>
         <h1 class="text-3xl font-bold text-gray-900">Research Dashboard</h1>
-        <p class="text-gray-600 mt-2">Competitor analysis, SERP insights, and wide moat opportunities</p>
+        <p class="text-gray-600 mt-2">Discover content opportunities your competitors are missing</p>
       </div>
 
-      <!-- Wide Moat Opportunities -->
-      <div class="bg-white rounded-lg shadow p-6 mb-6">
-        <h2 class="text-xl font-semibold text-gray-900 mb-4">Best Wide Moat Opportunities</h2>
-        <p class="text-sm text-gray-600 mb-4">Niches with defensible competitive advantages and low competition</p>
-        <div class="space-y-4">
-          {bestNiches.map((niche, i) => (
-            <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-500 transition-colors">
-              <div class="flex items-start justify-between mb-3">
-                <div class="flex-1">
-                  <div class="flex items-center space-x-3 mb-2">
-                    <span class="text-2xl font-bold text-gray-400">#{i + 1}</span>
-                    <h3 class="text-lg font-semibold text-gray-900">{niche.keyword}</h3>
-                    <span class={`px-2 py-1 text-xs rounded font-medium ${
-                      niche.competition === 'very_low' 
-                        ? 'bg-green-100 text-green-800' 
-                        : niche.competition === 'low'
-                        ? 'bg-blue-100 text-blue-800'
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {niche.competition.replace('_', ' ')}
-                    </span>
-                    <span class={`px-2 py-1 text-xs rounded font-medium ${
-                      niche.opportunity === 'high'
-                        ? 'bg-purple-100 text-purple-800'
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {niche.opportunity} opportunity
-                    </span>
-                  </div>
-                  <p class="text-sm text-gray-700 mb-2"><strong>Moat:</strong> {niche.moat}</p>
-                  <p class="text-sm text-gray-700 mb-2"><strong>Strategy:</strong> {niche.strategy}</p>
-                </div>
-                <div class="text-right ml-4">
-                  <div class="text-sm text-gray-600">Difficulty</div>
-                  <div class="text-2xl font-bold text-gray-900">{niche.difficulty}</div>
-                  <div class="text-xs text-gray-500">/ 100</div>
-                </div>
+      <!-- What This Tool Does - Value Proposition -->
+      <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6 mb-6">
+        <div class="flex items-start space-x-4">
+          <div class="flex-shrink-0">
+            <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+          </div>
+          <div class="flex-1">
+            <h2 class="text-xl font-semibold text-gray-900 mb-2">What This Tool Does</h2>
+            <p class="text-gray-700 mb-3">
+              This dashboard analyzes your competitors' best-performing content to find opportunities they're missing. 
+              Think of it like having a digital marketing agency analyze your competition and tell you exactly where to focus.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              <div class="bg-white rounded p-3 border border-blue-100">
+                <div class="font-semibold text-gray-900 mb-1">📊 Analyzes</div>
+                <div class="text-gray-600">All-time best posts from 10+ competitors</div>
               </div>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t">
-                <div>
-                  <p class="text-xs font-medium text-gray-700 mb-1">Related Keywords:</p>
-                  <div class="flex flex-wrap gap-1">
-                    {niche.relatedKeywords.slice(0, 5).map(kw => (
-                      <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">{kw}</span>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <p class="text-xs font-medium text-gray-700 mb-1">Content Ideas:</p>
-                  <ul class="text-xs text-gray-600 space-y-1">
-                    {niche.contentIdeas.slice(0, 3).map(idea => (
-                      <li>• {idea}</li>
-                    ))}
-                  </ul>
-                </div>
+              <div class="bg-white rounded p-3 border border-blue-100">
+                <div class="font-semibold text-gray-900 mb-1">🎯 Identifies</div>
+                <div class="text-gray-600">Topics they're missing that you can own</div>
+              </div>
+              <div class="bg-white rounded p-3 border border-blue-100">
+                <div class="font-semibold text-gray-900 mb-1">💡 Recommends</div>
+                <div class="text-gray-600">Specific content ideas with high potential</div>
               </div>
             </div>
-          ))}
+          </div>
         </div>
       </div>
 
-      <!-- Competitor Analysis -->
+      <!-- Competitor Analysis Section -->
       <div class="bg-white rounded-lg shadow p-6 mb-6">
-        <h2 class="text-xl font-semibold text-gray-900 mb-4">Competitor Analysis</h2>
-        <div class="space-y-4">
+        <div class="flex items-center justify-between mb-6">
           <div>
-            <h3 class="font-medium text-gray-900 mb-2">Top Competitors</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="border border-gray-200 rounded p-4">
-                <h4 class="font-semibold text-sm text-gray-900 mb-2">MrMoneyMustache</h4>
-                <p class="text-xs text-gray-600">Focus: FIRE philosophy, early retirement</p>
-                <p class="text-xs text-gray-500 mt-2">Avg word count: 1,800 | Last analyzed: <button data-competitor="MrMoneyMustache" class="run-research-btn text-blue-600 hover:underline cursor-pointer">Run analysis</button></p>
-              </div>
-              <div class="border border-gray-200 rounded p-4">
-                <h4 class="font-semibold text-sm text-gray-900 mb-2">Financial Samurai</h4>
-                <p class="text-xs text-gray-600">Focus: High income FIRE, wealth building</p>
-                <p class="text-xs text-gray-500 mt-2">Avg word count: 1,500 | Last analyzed: <button data-competitor="Financial Samurai" class="run-research-btn text-blue-600 hover:underline cursor-pointer">Run analysis</button></p>
-              </div>
+            <h2 class="text-2xl font-semibold text-gray-900">Competitor Analysis</h2>
+            <p class="text-gray-600 mt-1">See what your competitors are doing and find gaps they're missing</p>
+          </div>
+          <button 
+            id="run-all-research-btn"
+            class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm"
+          >
+            🔍 Analyze All Competitors
+          </button>
+        </div>
+
+        <!-- What Happens When You Click -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <h3 class="font-semibold text-gray-900 mb-2 flex items-center">
+            <span class="mr-2">ℹ️</span>
+            What Happens When You Click "Analyze All Competitors"
+          </h3>
+          <ol class="list-decimal list-inside space-y-2 text-sm text-gray-700">
+            <li><strong>Fetches RSS feeds</strong> from 10+ competitor blogs (MrMoneyMustache, Financial Samurai, etc.)</li>
+            <li><strong>Analyzes all their posts</strong> (not just recent ones - we look at their all-time best performers)</li>
+            <li><strong>Scores each post</strong> by social shares, backlinks, traffic potential, and how long it's been performing</li>
+            <li><strong>Identifies their top 20 posts</strong> - the ones that drive the most traffic and engagement</li>
+            <li><strong>Finds content gaps</strong> - topics they're NOT covering that you could own</li>
+            <li><strong>Shows you opportunities</strong> - specific angles and topics where you can outrank them</li>
+          </ol>
+          <p class="text-xs text-gray-600 mt-3 italic">
+            ⏱️ This takes 30-60 seconds. You'll see progress updates as it analyzes each competitor.
+          </p>
+        </div>
+
+        <!-- Competitor Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-500 transition-colors bg-gray-50">
+            <h4 class="font-semibold text-gray-900 mb-2">MrMoneyMustache</h4>
+            <p class="text-xs text-gray-600 mb-3">FIRE philosophy, early retirement</p>
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-gray-500">Last analyzed: Never</span>
+              <button data-competitor="MrMoneyMustache" class="run-research-btn text-xs px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
+                Analyze Now
+              </button>
             </div>
           </div>
-          <div class="mt-4">
-            <button 
-              id="run-all-research-btn"
-              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-            >
-              Run Full Competitor Research
-            </button>
-            <p class="text-xs text-gray-500 mt-2">This will scrape and analyze all competitors</p>
-            <p class="text-xs text-blue-600 mt-1">💡 Check browser console (F12) for detailed logs</p>
+          <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-500 transition-colors bg-gray-50">
+            <h4 class="font-semibold text-gray-900 mb-2">Financial Samurai</h4>
+            <p class="text-xs text-gray-600 mb-3">High income FIRE, wealth building</p>
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-gray-500">Last analyzed: Never</span>
+              <button data-competitor="Financial Samurai" class="run-research-btn text-xs px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
+                Analyze Now
+              </button>
+            </div>
           </div>
+          <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-500 transition-colors bg-gray-50">
+            <h4 class="font-semibold text-gray-900 mb-2">Go Curry Cracker</h4>
+            <p class="text-xs text-gray-600 mb-3">Early retirement, travel, expat FIRE</p>
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-gray-500">Last analyzed: Never</span>
+              <button data-competitor="Go Curry Cracker" class="run-research-btn text-xs px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
+                Analyze Now
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results Area (shown after analysis) -->
+        <div id="research-results" class="hidden mt-6 pt-6 border-t border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Analysis Results</h3>
+          <div id="results-content" class="space-y-4">
+            <!-- Results will be inserted here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Opportunities (Wide Moat) -->
+      <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-2">Content Opportunities</h2>
+        <p class="text-gray-600 mb-6">Topics where you can outrank competitors because they're not covering them well</p>
+        
+        <div class="space-y-6">
+          {bestNiches.map((niche, i) => {
+            const comp = explainCompetition(niche.competition);
+            const opp = explainOpportunity(niche.opportunity);
+            return (
+              <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between mb-4">
+                  <div class="flex-1">
+                    <div class="flex items-center space-x-3 mb-3">
+                      <span class="text-3xl font-bold text-gray-300">#{i + 1}</span>
+                      <div>
+                        <h3 class="text-xl font-semibold text-gray-900">{niche.keyword}</h3>
+                        <p class="text-sm text-gray-600 mt-1">Target keyword for this topic</p>
+                      </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div class={`border-l-4 pl-4 py-2 bg-${comp.color}-50 border-${comp.color}-500`}>
+                        <div class="font-semibold text-gray-900 mb-1">{comp.text}</div>
+                        <div class="text-sm text-gray-700">{comp.meaning}</div>
+                      </div>
+                      <div class="border-l-4 pl-4 py-2 bg-purple-50 border-purple-500">
+                        <div class="font-semibold text-gray-900 mb-1">High Opportunity</div>
+                        <div class="text-sm text-gray-700">{opp}</div>
+                      </div>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                      <div class="font-semibold text-gray-900 mb-2">💡 Why This Is Your Opportunity:</div>
+                      <p class="text-sm text-gray-700 mb-2"><strong>Competitive Advantage:</strong> {niche.moat}</p>
+                      <p class="text-sm text-gray-700"><strong>Strategy:</strong> {niche.strategy}</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <div class="text-xs font-medium text-gray-700 mb-2">Related Keywords to Target:</div>
+                        <div class="flex flex-wrap gap-1">
+                          {niche.relatedKeywords.slice(0, 5).map(kw => (
+                            <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">{kw}</span>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <div class="text-xs font-medium text-gray-700 mb-2">Content Ideas:</div>
+                        <ul class="text-xs text-gray-600 space-y-1">
+                          {niche.contentIdeas.slice(0, 3).map(idea => (
+                            <li>• {idea}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ml-6 text-center">
+                    <div class="text-sm text-gray-600 mb-1">Difficulty Score</div>
+                    <div class="text-4xl font-bold text-gray-900">{niche.difficulty}</div>
+                    <div class="text-xs text-gray-500">out of 100</div>
+                    <div class="mt-3 text-xs text-gray-600">
+                      {niche.difficulty < 30 ? '🟢 Easy win' : niche.difficulty < 60 ? '🟡 Moderate effort' : '🟠 Requires work'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
       <!-- Content Gaps -->
-      <div class="bg-white rounded-lg shadow p-6 mb-6">
-        <h2 class="text-xl font-semibold text-gray-900 mb-4">Content Gaps</h2>
-        <div class="space-y-3">
-          <div class="border-l-4 border-green-500 pl-4 py-2 bg-green-50">
-            <h3 class="font-medium text-gray-900">High Priority</h3>
-            <p class="text-sm text-gray-700">Intentional income reduction - Underserved by competitors</p>
-            <p class="text-xs text-gray-500 mt-1">Traffic potential: High | Competition: Very Low | Moat: First mover advantage</p>
-          </div>
-          <div class="border-l-4 border-green-500 pl-4 py-2 bg-green-50">
-            <h3 class="font-medium text-gray-900">High Priority</h3>
-            <p class="text-sm text-gray-700">Dual income FIRE strategies - Limited coverage</p>
-            <p class="text-xs text-gray-500 mt-1">Traffic potential: High | Competition: Low | Moat: Specific to common situation</p>
-          </div>
-          <div class="border-l-4 border-yellow-500 pl-4 py-2 bg-yellow-50">
-            <h3 class="font-medium text-gray-900">Medium Priority</h3>
-            <p class="text-sm text-gray-700">Cash holdings for high earners - Nuanced view missing</p>
-            <p class="text-xs text-gray-500 mt-1">Traffic potential: Medium | Competition: Low | Moat: Contrarian angle</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- SERP Insights -->
       <div class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-xl font-semibold text-gray-900 mb-4">SERP Insights</h2>
+        <h2 class="text-2xl font-semibold text-gray-900 mb-2">Content Gaps</h2>
+        <p class="text-gray-600 mb-6">Topics your competitors aren't covering well - your chance to be the expert</p>
+        
         <div class="space-y-4">
-          <div>
-            <h3 class="font-medium text-gray-900 mb-2">Featured Snippet Opportunities</h3>
-            <ul class="text-sm text-gray-700 space-y-1">
-              <li>• "What is BurnoutFIRE?" - No current snippet (easy win)</li>
-              <li>• "How to reduce income intentionally?" - Weak snippet (can improve)</li>
-              <li>• "Dual income FIRE strategy" - No snippet (opportunity)</li>
-            </ul>
+          <div class="border-l-4 border-green-500 pl-6 py-4 bg-green-50 rounded-r-lg">
+            <div class="flex items-start justify-between">
+              <div class="flex-1">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="px-3 py-1 bg-green-600 text-white text-sm font-semibold rounded">High Priority</span>
+                  <h3 class="text-lg font-semibold text-gray-900">Intentional Income Reduction</h3>
+                </div>
+                <p class="text-gray-700 mb-3">
+                  Your competitors focus on maximizing income, but you're the only one talking about intentionally reducing income for better life quality. 
+                  This is your unique angle - and there's real search demand for it.
+                </p>
+                <div class="grid grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <div class="text-gray-600">Traffic Potential</div>
+                    <div class="font-semibold text-gray-900">High</div>
+                    <div class="text-xs text-gray-500">Many people search for this</div>
+                  </div>
+                  <div>
+                    <div class="text-gray-600">Competition</div>
+                    <div class="font-semibold text-green-700">Very Low</div>
+                    <div class="text-xs text-gray-500">Almost no one else covers this</div>
+                  </div>
+                  <div>
+                    <div class="text-gray-600">Your Advantage</div>
+                    <div class="font-semibold text-gray-900">First Mover</div>
+                    <div class="text-xs text-gray-500">You can own this topic</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <h3 class="font-medium text-gray-900 mb-2">People Also Ask</h3>
-            <ul class="text-sm text-gray-700 space-y-1">
-              <li>• "Is reducing income worth it?"</li>
-              <li>• "How much cash should high earners hold?"</li>
-              <li>• "BurnoutFIRE vs CoastFIRE?"</li>
-              <li>• "Can you achieve FIRE with lower income?"</li>
-            </ul>
+
+          <div class="border-l-4 border-green-500 pl-6 py-4 bg-green-50 rounded-r-lg">
+            <div class="flex items-start justify-between">
+              <div class="flex-1">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="px-3 py-1 bg-green-600 text-white text-sm font-semibold rounded">High Priority</span>
+                  <h3 class="text-lg font-semibold text-gray-900">Dual Income FIRE Strategies</h3>
+                </div>
+                <p class="text-gray-700 mb-3">
+                  Most FIRE content assumes single income or doesn't address dual-income dynamics. 
+                  This is a huge, underserved audience - dual-income families are common but rarely discussed in FIRE content.
+                </p>
+                <div class="grid grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <div class="text-gray-600">Traffic Potential</div>
+                    <div class="font-semibold text-gray-900">High</div>
+                    <div class="text-xs text-gray-500">Large, specific audience</div>
+                  </div>
+                  <div>
+                    <div class="text-gray-600">Competition</div>
+                    <div class="font-semibold text-blue-700">Low</div>
+                    <div class="text-xs text-gray-500">Limited coverage exists</div>
+                  </div>
+                  <div>
+                    <div class="text-gray-600">Your Advantage</div>
+                    <div class="font-semibold text-gray-900">Personal Experience</div>
+                    <div class="text-xs text-gray-500">You live this strategy</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <h3 class="font-medium text-gray-900 mb-2">Wide Moat Keywords</h3>
-            <div class="flex flex-wrap gap-2">
-              {bestNiches.slice(0, 5).map(niche => (
-                <span class="px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded font-medium">
-                  {niche.keyword}
-                </span>
-              ))}
+
+          <div class="border-l-4 border-yellow-500 pl-6 py-4 bg-yellow-50 rounded-r-lg">
+            <div class="flex items-start justify-between">
+              <div class="flex-1">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="px-3 py-1 bg-yellow-600 text-white text-sm font-semibold rounded">Medium Priority</span>
+                  <h3 class="text-lg font-semibold text-gray-900">Cash Holdings for High Earners</h3>
+                </div>
+                <p class="text-gray-700 mb-3">
+                  Most content says "hold minimal cash, invest everything." But for high earners with burnout risk, 
+                  holding more cash can be rational. This nuanced view is missing from competitor content.
+                </p>
+                <div class="grid grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <div class="text-gray-600">Traffic Potential</div>
+                    <div class="font-semibold text-gray-900">Medium</div>
+                    <div class="text-xs text-gray-500">Specific audience interest</div>
+                  </div>
+                  <div>
+                    <div class="text-gray-600">Competition</div>
+                    <div class="font-semibold text-blue-700">Low</div>
+                    <div class="text-xs text-gray-500">Contrarian angle available</div>
+                  </div>
+                  <div>
+                    <div class="text-gray-600">Your Advantage</div>
+                    <div class="font-semibold text-gray-900">Contrarian Logic</div>
+                    <div class="text-xs text-gray-500">You challenge conventional wisdom</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -172,62 +346,56 @@ const seo = {
   </div>
 
   <script>
-    // Show loading state
-    function showLoading(element, text) {
-      element.disabled = true;
-      element.dataset.originalText = element.textContent;
-      element.innerHTML = `<span class="inline-block animate-spin mr-2">⏳</span>${text}`;
-      element.classList.add('opacity-75', 'cursor-not-allowed');
+    // Helper functions
+    function showLoading(button, text) {
+      if (button) {
+        button.disabled = true;
+        button.innerHTML = `⏳ ${text}`;
+        button.classList.add('opacity-75', 'cursor-not-allowed');
+      }
     }
 
-    // Hide loading state
-    function hideLoading(element) {
-      element.disabled = false;
-      element.textContent = element.dataset.originalText || 'Run analysis';
-      element.classList.remove('opacity-75', 'cursor-not-allowed');
+    function hideLoading(button, originalText) {
+      if (button) {
+        button.disabled = false;
+        button.textContent = originalText;
+        button.classList.remove('opacity-75', 'cursor-not-allowed');
+      }
     }
 
-    // Show error message
-    function showError(message) {
-      const errorDiv = document.createElement('div');
-      errorDiv.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-lg z-50 max-w-md';
-      errorDiv.innerHTML = `
+    function showMessage(message, type = 'info') {
+      const colors = {
+        success: 'bg-green-100 border-green-400 text-green-700',
+        error: 'bg-red-100 border-red-400 text-red-700',
+        info: 'bg-blue-100 border-blue-400 text-blue-700'
+      };
+      
+      const div = document.createElement('div');
+      div.className = `fixed top-4 right-4 ${colors[type]} border px-6 py-4 rounded-lg shadow-lg z-50 max-w-md`;
+      div.innerHTML = `
         <div class="flex items-center justify-between">
-          <span>❌ ${message}</span>
-          <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-red-700 hover:text-red-900">×</button>
+          <span>${message}</span>
+          <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg">×</button>
         </div>
       `;
-      document.body.appendChild(errorDiv);
-      setTimeout(() => errorDiv.remove(), 5000);
+      document.body.appendChild(div);
+      setTimeout(() => div.remove(), 5000);
     }
-
-    // Show success message
-    function showSuccess(message) {
-      const successDiv = document.createElement('div');
-      successDiv.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-lg z-50 max-w-md';
-      successDiv.innerHTML = `
-        <div class="flex items-center justify-between">
-          <span>✅ ${message}</span>
-          <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-green-700 hover:text-green-900">×</button>
-        </div>
-      `;
-      document.body.appendChild(successDiv);
-      setTimeout(() => successDiv.remove(), 5000);
-    }
-
 
     async function runResearch(competitor, event) {
-      console.log('🔵 [RESEARCH] runResearch called', { competitor, event });
+      console.log('🔵 [RESEARCH] Analyzing competitor:', competitor);
       
       const button = event?.target || document.querySelector(`button[data-competitor="${competitor}"]`);
+      const originalText = button?.textContent || 'Analyze Now';
       showLoading(button, 'Analyzing...');
       
       try {
-        // Use local API in dev, Netlify Function in prod
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         const apiUrl = isLocal 
           ? `/api/research/competitors-local?competitor=${encodeURIComponent(competitor)}`
           : `/.netlify/functions/research-competitors?competitor=${encodeURIComponent(competitor)}`;
+        
+        showMessage(`🔍 Analyzing ${competitor}... This takes about 10-15 seconds.`, 'info');
         
         const response = await fetch(apiUrl, {
           method: 'GET',
@@ -240,207 +408,195 @@ const seo = {
         
         const data = await response.json();
         
-        if (data.success) {
-          showSuccess(`Analysis complete for ${competitor}! Found ${data.profile?.samplePosts?.length || 0} posts analyzed.`);
-          setTimeout(() => location.reload(), 2000);
+        if (data.success && data.profile) {
+          const profile = data.profile;
+          showMessage(`✅ Analysis complete! Found ${profile.totalPosts || 0} posts and ${profile.topPosts?.length || 0} top performers.`, 'success');
+          
+          // Show results
+          displayCompetitorResults(profile);
+          
+          setTimeout(() => location.reload(), 3000);
         } else {
           throw new Error(data.error || 'Unknown error');
         }
       } catch (error) {
         console.error('Research error:', error);
-        showError(`Research failed: ${error.message}. Check browser console for details.`);
-        hideLoading(button);
+        showMessage(`❌ Analysis failed: ${error.message}. Check console for details.`, 'error');
+        hideLoading(button, originalText);
+      }
+    }
+
+    async function runAllResearch(event) {
+      console.log('🔵 [RESEARCH] Starting full competitor analysis');
+      
+      if (!confirm('This will analyze all 10+ competitors. It takes 30-60 seconds. Continue?')) {
+        return;
+      }
+      
+      const button = document.getElementById('run-all-research-btn') || event?.target;
+      const originalText = button?.textContent || '🔍 Analyze All Competitors';
+      showLoading(button, 'Analyzing all competitors...');
+      
+      // Show progress container
+      const resultsDiv = document.getElementById('research-results');
+      const resultsContent = document.getElementById('results-content');
+      if (resultsDiv) resultsDiv.classList.remove('hidden');
+      if (resultsContent) {
+        resultsContent.innerHTML = `
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="flex items-center space-x-3">
+              <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+              <div>
+                <div class="font-semibold text-gray-900">Analyzing Competitors...</div>
+                <div class="text-sm text-gray-600">Fetching RSS feeds and analyzing content. This takes 30-60 seconds.</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      
+      try {
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const apiUrl = isLocal 
+          ? '/api/research/competitors-local'
+          : '/.netlify/functions/research-competitors';
+        
+        const response = await fetch(apiUrl, { method: 'GET' });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          const postsCount = data.profiles.reduce((sum, p) => sum + (p.samplePosts?.length || 0), 0);
+          
+          if (resultsContent) {
+            resultsContent.innerHTML = `
+              <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+                <div class="flex items-center space-x-3 mb-4">
+                  <div class="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white text-2xl">✅</div>
+                  <div>
+                    <div class="font-semibold text-lg text-gray-900">Analysis Complete!</div>
+                    <div class="text-sm text-gray-600">Analyzed ${data.count || data.profiles.length} competitors</div>
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                  <div class="bg-white rounded p-3">
+                    <div class="text-gray-600">Competitors Analyzed</div>
+                    <div class="text-2xl font-bold text-gray-900">${data.count || data.profiles.length}</div>
+                  </div>
+                  <div class="bg-white rounded p-3">
+                    <div class="text-gray-600">Total Posts Found</div>
+                    <div class="text-2xl font-bold text-gray-900">${postsCount}+</div>
+                  </div>
+                  <div class="bg-white rounded p-3">
+                    <div class="text-gray-600">Top Posts Identified</div>
+                    <div class="text-2xl font-bold text-gray-900">${data.profiles.reduce((sum, p) => sum + (p.topPosts?.length || 0), 0)}</div>
+                  </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-green-200">
+                  <div class="font-semibold text-gray-900 mb-2">What This Means:</div>
+                  <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+                    <li>We've identified your competitors' best-performing content</li>
+                    <li>Found ${data.profiles.reduce((sum, p) => sum + (p.gaps?.length || 0), 0)} content gaps they're missing</li>
+                    <li>Discovered opportunities where you can outrank them</li>
+                  </ul>
+                  <p class="text-sm text-gray-600 mt-3 italic">💡 Check the "Content Opportunities" section above for specific topics to write about.</p>
+                </div>
+              </div>
+            `;
+          }
+          
+          showMessage(`✅ Analysis complete! Found ${postsCount} posts across ${data.count || data.profiles.length} competitors.`, 'success');
+          setTimeout(() => location.reload(), 5000);
+        } else {
+          throw new Error(data.error || 'Unknown error');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        if (resultsContent) {
+          resultsContent.innerHTML = `
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div class="font-semibold text-red-900">❌ Analysis Failed</div>
+              <div class="text-sm text-red-700 mt-1">${error.message}</div>
+              <div class="text-xs text-red-600 mt-2">Check browser console (F12) for details.</div>
+            </div>
+          `;
+        }
+        showMessage(`❌ Analysis failed: ${error.message}`, 'error');
+        hideLoading(button, originalText);
+      }
+    }
+
+    function displayCompetitorResults(profile) {
+      const resultsDiv = document.getElementById('research-results');
+      const resultsContent = document.getElementById('results-content');
+      
+      if (resultsDiv) resultsDiv.classList.remove('hidden');
+      if (resultsContent) {
+        resultsContent.innerHTML = `
+          <div class="border border-gray-200 rounded-lg p-4 bg-white">
+            <h4 class="font-semibold text-gray-900 mb-3">${profile.name}</h4>
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <div class="text-gray-600">Total Posts Analyzed</div>
+                <div class="text-xl font-bold text-gray-900">${profile.totalPosts || 0}</div>
+              </div>
+              <div>
+                <div class="text-gray-600">Average Word Count</div>
+                <div class="text-xl font-bold text-gray-900">${profile.content?.averageWordCount || 0}</div>
+              </div>
+            </div>
+            ${profile.opportunities?.gaps?.length > 0 ? `
+              <div class="mt-4 pt-4 border-t">
+                <div class="font-semibold text-gray-900 mb-2">Content Gaps Found:</div>
+                <ul class="text-sm text-gray-700 space-y-1">
+                  ${profile.opportunities.gaps.map(gap => `<li>• ${gap}</li>`).join('')}
+                </ul>
+              </div>
+            ` : ''}
+          </div>
+        `;
       }
     }
 
     // Make functions globally available
     window.runResearch = runResearch;
     window.runAllResearch = runAllResearch;
-    
-    // Attach event listeners for individual competitor buttons
-    function attachCompetitorButtons() {
-      const buttons = document.querySelectorAll('.run-research-btn');
-      console.log('🔵 [RESEARCH] Found', buttons.length, 'competitor buttons');
-      buttons.forEach(button => {
+
+    // Attach event listeners
+    function initButtons() {
+      // Individual competitor buttons
+      document.querySelectorAll('.run-research-btn').forEach(button => {
         const competitor = button.getAttribute('data-competitor');
         if (competitor) {
           const newButton = button.cloneNode(true);
           button.parentNode?.replaceChild(newButton, button);
           newButton.addEventListener('click', (e) => {
             e.preventDefault();
-            e.stopPropagation();
-            console.log('🔵 [RESEARCH] Competitor button clicked:', competitor);
             runResearch(competitor, e);
           });
         }
       });
-      return buttons.length > 0;
-    }
-    
-    async function runAllResearch(event) {
-      console.log('🔵 [RESEARCH] Button clicked!', { event, timestamp: new Date().toISOString() });
-      
-      try {
-        if (!confirm('This will analyze all competitors via RSS feeds. This may take 30-60 seconds. Continue?')) {
-          console.log('🔵 [RESEARCH] User cancelled');
-          return;
-        }
-        
-        console.log('🔵 [RESEARCH] User confirmed, starting research...');
-        
-        // Try multiple ways to find the button
-        const buttonById = document.getElementById('run-all-research-btn');
-        const buttonByEvent = event?.target;
-        const buttonByQuery = document.querySelector('button[onclick*="runAllResearch"]');
-        const button = buttonById || buttonByEvent || buttonByQuery;
-        
-        console.log('🔵 [RESEARCH] Button found:', {
-          byId: !!buttonById,
-          byEvent: !!buttonByEvent,
-          byQuery: !!buttonByQuery,
-          finalButton: button,
-          buttonText: button?.textContent,
-        });
-        
-        if (!button) {
-          console.error('🔴 [RESEARCH] ERROR: Could not find button element!');
-          alert('❌ Error: Could not find button. Check console for details.');
-          return;
-        }
-        
-        showLoading(button, 'Researching all competitors...');
-        console.log('🔵 [RESEARCH] Loading state set on button');
-        
-        // Show progress
-        const progressDiv = document.createElement('div');
-        progressDiv.id = 'research-progress';
-        progressDiv.className = 'mt-4 p-4 bg-blue-50 border border-blue-200 rounded';
-        progressDiv.innerHTML = '<p class="text-sm text-blue-700">⏳ Starting research... This will take 30-60 seconds.</p>';
-        
-        const buttonParent = button.parentElement;
-        console.log('🔵 [RESEARCH] Button parent:', buttonParent);
-        
-        if (buttonParent) {
-          buttonParent.appendChild(progressDiv);
-          console.log('🔵 [RESEARCH] Progress div added to DOM');
-        } else {
-          console.error('🔴 [RESEARCH] ERROR: Button has no parent element!');
-        }
-        
-        // Use local API in dev, Netlify Function in prod
-        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const apiUrl = isLocal 
-          ? '/api/research/competitors-local'
-          : '/.netlify/functions/research-competitors';
-        
-        console.log('🔵 [RESEARCH] API Configuration:', {
-          hostname: window.location.hostname,
-          isLocal,
-          apiUrl,
-          fullUrl: window.location.origin + apiUrl,
-        });
-        
-        progressDiv.innerHTML = '<p class="text-sm text-blue-700">⏳ Fetching competitor RSS feeds...</p>';
-        console.log('🔵 [RESEARCH] Making fetch request to:', apiUrl);
-        
-        const fetchStartTime = Date.now();
-        const response = await fetch(apiUrl, {
-          method: 'GET',
-        });
-        const fetchDuration = Date.now() - fetchStartTime;
-        
-        console.log('🔵 [RESEARCH] Fetch response received:', {
-          status: response.status,
-          statusText: response.statusText,
-          ok: response.ok,
-          headers: Object.fromEntries(response.headers.entries()),
-          duration: `${fetchDuration}ms`,
-        });
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('🔴 [RESEARCH] HTTP Error:', {
-            status: response.status,
-            statusText: response.statusText,
-            body: errorText,
-          });
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        console.log('🔵 [RESEARCH] Parsing JSON response...');
-        const data = await response.json();
-        console.log('🔵 [RESEARCH] Response data:', {
-          success: data.success,
-          count: data.count,
-          profilesCount: data.profiles?.length,
-          hasError: !!data.error,
-          fullData: data,
-        });
-        
-        if (data.success) {
-          const postsCount = data.profiles.reduce((sum, p) => sum + (p.samplePosts?.length || 0), 0);
-          progressDiv.innerHTML = `<p class="text-sm text-green-700">✅ Analyzed ${data.count || data.profiles.length} competitors!</p><p class="text-xs text-gray-600 mt-1">Found ${postsCount} posts total.</p>`;
-          showSuccess(`Research complete! Analyzed ${data.count || data.profiles.length} competitors. Refreshing...`);
-          console.log('✅ [RESEARCH] Success! Reloading page in 2 seconds...');
-          setTimeout(() => location.reload(), 2000);
-        } else {
-          console.error('🔴 [RESEARCH] API returned success: false', data);
-          throw new Error(data.error || 'Unknown error');
-        }
-      } catch (error) {
-        console.error('🔴 [RESEARCH] Exception caught:', {
-          error,
-          message: error.message,
-          stack: error.stack,
-          name: error.name,
-        });
-        
-        const progressDiv = document.getElementById('research-progress');
-        if (progressDiv) {
-          progressDiv.innerHTML = `<p class="text-sm text-red-700">❌ Error: ${error.message}</p><p class="text-xs text-gray-600 mt-1">Check browser console for details.</p>`;
-        }
-        
-        showError(`Research failed: ${error.message}`);
-        
-        const button = document.getElementById('run-all-research-btn') || document.querySelector('button[onclick*="runAllResearch"]');
-        if (button) {
-          hideLoading(button);
-        }
-      }
-    }
-    
-    // Attach event listener for "Run All" button
-    function attachResearchButtonListener() {
-      const button = document.getElementById('run-all-research-btn');
-      if (button) {
-        console.log('🔵 [RESEARCH] Found "Run All" button, attaching click listener');
-        const newButton = button.cloneNode(true);
-        button.parentNode?.replaceChild(newButton, button);
+
+      // "Run All" button
+      const allButton = document.getElementById('run-all-research-btn');
+      if (allButton) {
+        const newButton = allButton.cloneNode(true);
+        allButton.parentNode?.replaceChild(newButton, allButton);
         newButton.addEventListener('click', (e) => {
           e.preventDefault();
-          e.stopPropagation();
-          console.log('🔵 [RESEARCH] "Run All" button clicked via event listener');
           runAllResearch(e);
         });
-        return true;
       }
-      return false;
     }
-    
-    // Initialize all button listeners
-    function initResearchButtons() {
-      attachCompetitorButtons();
-      attachResearchButtonListener();
-    }
-    
-    // Try immediately
-    if (!initResearchButtons()) {
-      console.log('🔵 [RESEARCH] Buttons not found, waiting for DOMContentLoaded');
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initResearchButtons);
-      } else {
-        setTimeout(initResearchButtons, 100);
-      }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initButtons);
+    } else {
+      initButtons();
     }
   </script>
 </BaseLayout>
