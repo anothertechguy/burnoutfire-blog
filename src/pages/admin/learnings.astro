@@ -279,24 +279,38 @@ const seo = {
       const button = event.target;
       const originalText = button.textContent;
       button.disabled = true;
-      button.textContent = 'Researching...';
+      button.textContent = '⏳ Researching...';
+      
+      // Show progress indicator
+      const progressDiv = document.createElement('div');
+      progressDiv.className = 'mt-4 p-4 bg-blue-50 border border-blue-200 rounded';
+      progressDiv.innerHTML = '<p class="text-sm text-blue-700">⏳ Starting research... This will take 30-60 seconds.</p>';
+      button.parentElement.appendChild(progressDiv);
       
       try {
-        const response = await fetch('/api/research/competitors', {
+        progressDiv.innerHTML = '<p class="text-sm text-blue-700">⏳ Fetching competitor RSS feeds and analyzing content...</p>';
+        
+        const response = await fetch('/.netlify/functions/research-competitors', {
           method: 'GET',
         });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
         
         const data = await response.json();
         
         if (data.success) {
-          alert(`✅ Research complete! Analyzed ${data.profiles.length} competitors.\n\nRefresh page to see detailed profiles.`);
-          setTimeout(() => location.reload(), 1000);
+          progressDiv.innerHTML = `<p class="text-sm text-green-700">✅ Analyzed ${data.count || data.profiles.length} competitors!</p><p class="text-xs text-gray-600 mt-1">Found ${data.profiles.reduce((sum, p) => sum + (p.samplePosts?.length || 0), 0)} posts analyzed.</p>`;
+          alert(`✅ Research complete! Analyzed ${data.count || data.profiles.length} competitors.\n\nRefresh page to see detailed profiles.`);
+          setTimeout(() => location.reload(), 2000);
         } else {
-          alert('❌ Error: ' + (data.error || 'Unknown error'));
+          throw new Error(data.error || 'Unknown error');
         }
       } catch (error) {
         console.error('Error:', error);
-        alert('❌ Error running research. Check browser console for details.\n\nNote: This requires API endpoints to be functional.');
+        progressDiv.innerHTML = `<p class="text-sm text-red-700">❌ Error: ${error.message}</p><p class="text-xs text-gray-600 mt-1">Check browser console for details.</p>`;
+        alert(`❌ Error running research: ${error.message}\n\nCheck browser console for details.`);
       } finally {
         button.disabled = false;
         button.textContent = originalText;
