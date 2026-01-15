@@ -1,0 +1,211 @@
+---
+import BaseLayout from '../../components/Layout/BaseLayout.astro';
+import { SITE_CONFIG } from '../../config';
+import { generateContentRoadmap } from '../../utils/agents/content/roadmapGenerator';
+import { getAllPosts } from '../../utils/posts';
+
+// Get existing posts
+const existingPosts = await getAllPosts();
+
+// Mock competitor gaps (in production, this would come from research)
+const competitorGaps = [
+  {
+    topic: 'CoastFIRE vs BurnoutFIRE',
+    opportunity: 'high' as const,
+    reasoning: 'High search volume, low competition, aligns with brand',
+  },
+  {
+    topic: 'Dual Income FIRE Strategies',
+    opportunity: 'high' as const,
+    reasoning: 'Gap in competitor content, high relevance to target audience',
+  },
+  {
+    topic: 'The Real Cost of Burnout',
+    opportunity: 'high' as const,
+    reasoning: 'Emotional hook, high share potential, unique angle',
+  },
+];
+
+// Generate roadmap
+const roadmap = generateContentRoadmap(
+  competitorGaps,
+  existingPosts.map(p => ({ id: p.slug, title: p.data.title, category: p.data.category })),
+);
+
+const seo = {
+  title: `Content Roadmap | ${SITE_CONFIG.title} Admin`,
+  description: 'View and manage your content roadmap',
+};
+---
+
+<BaseLayout title="Content Roadmap" description="Strategic content planning" seo={seo}>
+  <div class="min-h-screen bg-gray-50 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="mb-8">
+        <a href="/admin" class="text-blue-600 hover:text-blue-800 mb-4 inline-block">← Back to Dashboard</a>
+        <div class="flex justify-between items-center">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900">Content Roadmap</h1>
+            <p class="text-gray-600 mt-2">Strategic content plan based on competitor analysis and SEO opportunities</p>
+          </div>
+          <button
+            onclick="regenerateRoadmap()"
+            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Regenerate Roadmap
+          </button>
+        </div>
+      </div>
+
+      <!-- Strategy Overview -->
+      <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Content Strategy</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="text-center">
+            <div class="text-3xl font-bold text-blue-600">{roadmap.strategy.pillarPosts}</div>
+            <div class="text-sm text-gray-600 mt-1">Pillar Posts</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-green-600">{roadmap.strategy.supportingPosts}</div>
+            <div class="text-sm text-gray-600 mt-1">Supporting</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-purple-600">{roadmap.strategy.tacticalPosts}</div>
+            <div class="text-sm text-gray-600 mt-1">Tactical</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-orange-600">{roadmap.strategy.evergreenPosts}</div>
+            <div class="text-sm text-gray-600 mt-1">Evergreen</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="space-y-6">
+        <!-- This Month -->
+        {roadmap.timeline.thisMonth.length > 0 && (
+          <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">This Month</h2>
+            <div class="space-y-4">
+              {roadmap.timeline.thisMonth.map(post => (
+                <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-500 transition-colors">
+                  <div class="flex items-start justify-between mb-2">
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-3 mb-2">
+                        <h3 class="text-lg font-semibold text-gray-900">{post.title}</h3>
+                        <span class={`px-2 py-1 text-xs rounded font-medium ${
+                          post.category === 'pillar' 
+                            ? 'bg-blue-100 text-blue-800'
+                            : post.category === 'supporting'
+                            ? 'bg-green-100 text-green-800'
+                            : post.category === 'tactical'
+                            ? 'bg-purple-100 text-purple-800'
+                            : 'bg-orange-100 text-orange-800'
+                        }`}>
+                          {post.category}
+                        </span>
+                        <span class={`px-2 py-1 text-xs rounded font-medium ${
+                          post.priority === 'high'
+                            ? 'bg-red-100 text-red-800'
+                            : post.priority === 'medium'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {post.priority} priority
+                        </span>
+                      </div>
+                      <p class="text-sm text-gray-600 mb-2"><strong>Keyword:</strong> {post.keyword}</p>
+                      <p class="text-sm text-gray-600 mb-2"><strong>Target:</strong> {post.targetWordCount} words</p>
+                      <p class="text-sm text-gray-700 mb-2"><strong>Rationale:</strong> {post.rationale}</p>
+                      <p class="text-xs text-gray-500"><strong>Publish:</strong> {post.suggestedPublishDate.toLocaleDateString()}</p>
+                    </div>
+                    <div class="ml-4">
+                      <select
+                        class="text-sm border border-gray-300 rounded px-2 py-1"
+                        onchange="updatePostStatus('{post.id}', this.value)"
+                      >
+                        <option value="planned" selected={post.status === 'planned'}>Planned</option>
+                        <option value="in-progress" selected={post.status === 'in-progress'}>In Progress</option>
+                        <option value="draft" selected={post.status === 'draft'}>Draft</option>
+                        <option value="published" selected={post.status === 'published'}>Published</option>
+                      </select>
+                    </div>
+                  </div>
+                  {post.competitorGaps.length > 0 && (
+                    <div class="mt-3 pt-3 border-t border-gray-200">
+                      <p class="text-xs font-medium text-gray-700 mb-1">Competitor Gaps:</p>
+                      <div class="flex flex-wrap gap-1">
+                        {post.competitorGaps.map(gap => (
+                          <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded">{gap}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <!-- Next Month -->
+        {roadmap.timeline.nextMonth.length > 0 && (
+          <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Next Month</h2>
+            <div class="space-y-4">
+              {roadmap.timeline.nextMonth.map(post => (
+                <div class="border border-gray-200 rounded-lg p-4">
+                  <h3 class="font-semibold text-gray-900">{post.title}</h3>
+                  <p class="text-sm text-gray-600 mt-1">{post.targetWordCount} words • {post.suggestedPublishDate.toLocaleDateString()}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <!-- Next Quarter -->
+        {roadmap.timeline.nextQuarter.length > 0 && (
+          <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Next Quarter</h2>
+            <div class="space-y-2">
+              {roadmap.timeline.nextQuarter.map(post => (
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span class="text-sm text-gray-700">{post.title}</span>
+                  <span class="text-xs text-gray-500">{post.suggestedPublishDate.toLocaleDateString()}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <!-- Backlog -->
+        {roadmap.timeline.backlog.length > 0 && (
+          <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Backlog</h2>
+            <div class="space-y-2">
+              {roadmap.timeline.backlog.map(post => (
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span class="text-sm text-gray-700">{post.title}</span>
+                  <span class="text-xs text-gray-500">{post.suggestedPublishDate.toLocaleDateString()}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function updatePostStatus(postId, status) {
+      // In production, save to backend
+      console.log(`Updating post ${postId} to status ${status}`);
+    }
+
+    function regenerateRoadmap() {
+      if (confirm('Regenerate content roadmap? This will create a new plan based on current competitor analysis.')) {
+        // In production, call API to regenerate
+        location.reload();
+      }
+    }
+  </script>
+</BaseLayout>

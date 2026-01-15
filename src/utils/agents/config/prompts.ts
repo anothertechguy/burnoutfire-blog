@@ -10,8 +10,25 @@ export const WRITING_PROMPTS = {
     Avoid: toxic frugality, extreme minimalism, judgmental language.
     Include: personal narratives, clear financial logic, actionable steps.
     Target audience: high earners (>$120k), burned-out professionals, parents.
-    Voice: Like MrMoneyMustache (direct, confident, witty) but original content.
+    
+    **MrMoneyMustache Tone Matching (where applicable):**
+    - Direct and confident: State opinions clearly without hedging
+    - Witty and conversational: Use humor and casual language naturally
+    - Contrarian but logical: Challenge conventional wisdom with sound reasoning
+    - Personal and relatable: Share experiences that readers connect with
+    - Actionable: Every point should lead to something the reader can do
+    - No fluff: Get to the point, but don't sacrifice depth for brevity
+    
+    Voice: Like MrMoneyMustache (direct, confident, witty, contrarian) but with your own unique perspective and original content.
     Be conversational but authoritative. Use "I" and "you" to create connection.
+    
+    **Tone Analysis from MrMoneyMustache:**
+    - Opens with strong, contrarian hook
+    - Uses "you" frequently to engage reader
+    - Mixes personal anecdotes with universal truths
+    - Ends with clear call to action or takeaway
+    - Uses short paragraphs for readability
+    - Balances humor with serious financial advice
   `,
   
   structure: `
