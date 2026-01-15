@@ -11,6 +11,8 @@ export default defineConfig({
     }),
   ],
   output: 'static',
+  // Enable server mode for API routes (hybrid mode)
+  adapter: undefined, // Keep static, but allow API routes in dev
   site: 'https://burnoutfire.com', // Update with actual domain
   markdown: {
     shikiConfig: {
