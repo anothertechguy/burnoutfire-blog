@@ -15,7 +15,7 @@ Conventional wisdom is clear: holding cash is wasteful. You're losing to inflati
 
 But what if conventional wisdom is wrong for your situation?
 
-I hold 18 months of expenses in cash. That's "too much" by most financial standards. But for me, it's rational. Here's why.
+My approach might seem unconventional: I maintain a combination of cash and investments that I don't plan to touch for expenses. Instead, my wife and I use our dual income to cover living costs while continuing to max out our 401(k)s and Roth IRAs each year, and I'm actively building side hustles for additional income streams. This strategy provides the security I need without the stress of relying on investments for day-to-day expenses. Here's why this approach works.
 
 ## The Conventional Wisdom
 
