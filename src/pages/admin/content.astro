@@ -48,12 +48,13 @@ const seo = {
                   >
                     Edit
                   </a>
-                  <button 
-                    onclick={`previewPost('${post.slug}')`}
-                    class="px-3 py-1 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 transition-colors"
+                  <a
+                    href={`/posts/${post.slug}`}
+                    target="_blank"
+                    class="px-3 py-1 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 transition-colors inline-block"
                   >
                     Preview
-                  </button>
+                  </a>
                 </div>
               </div>
             </div>

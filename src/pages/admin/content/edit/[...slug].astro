@@ -1,0 +1,165 @@
+---
+import BaseLayout from '../../../components/Layout/BaseLayout.astro';
+import { getPostBySlug } from '../../../../utils/posts';
+import { SITE_CONFIG } from '../../../../config';
+import fs from 'fs';
+import path from 'path';
+
+const slug = Astro.params.slug || '';
+const post = await getPostBySlug(slug);
+
+if (!post) {
+  return Astro.redirect('/admin/content');
+}
+
+// Read the actual markdown file
+const contentPath = path.join(process.cwd(), 'src/content/posts', `${slug}.md`);
+let fileContent = '';
+let frontmatter = '';
+
+try {
+  fileContent = fs.readFileSync(contentPath, 'utf-8');
+  // Extract frontmatter and content
+  const frontmatterMatch = fileContent.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+  if (frontmatterMatch) {
+    frontmatter = frontmatterMatch[1];
+    fileContent = frontmatterMatch[2];
+  }
+} catch (error) {
+  console.error('Error reading file:', error);
+}
+
+const seo = {
+  title: `Edit: ${post.data.title} | ${SITE_CONFIG.title} Admin`,
+  description: 'Edit blog post',
+};
+---
+
+<BaseLayout title={`Edit: ${post.data.title}`} description="Edit blog post" seo={seo}>
+  <div class="min-h-screen bg-gray-50 py-12">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="mb-8">
+        <a href="/admin/content" class="text-blue-600 hover:text-blue-800 mb-4 inline-block">← Back to Content</a>
+        <h1 class="text-3xl font-bold text-gray-900">Edit Post</h1>
+        <p class="text-gray-600 mt-2">{post.data.title}</p>
+      </div>
+
+      <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+        <p class="text-sm text-yellow-800">
+          <strong>⚠️ Note:</strong> This is a read-only preview. To edit posts, modify the markdown files in <code class="bg-yellow-100 px-1 rounded">src/content/posts/</code> directly.
+          In production, this would be a full editor with save functionality.
+        </p>
+      </div>
+
+      <!-- Post Info -->
+      <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Post Information</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <div>
+            <span class="text-gray-600">Title:</span>
+            <p class="font-medium text-gray-900">{post.data.title}</p>
+          </div>
+          <div>
+            <span class="text-gray-600">Slug:</span>
+            <p class="font-medium text-gray-900">{slug}</p>
+          </div>
+          <div>
+            <span class="text-gray-600">Publish Date:</span>
+            <p class="font-medium text-gray-900">{new Date(post.data.publishDate).toLocaleDateString()}</p>
+          </div>
+          <div>
+            <span class="text-gray-600">Category:</span>
+            <p class="font-medium text-gray-900">{post.data.category || 'Uncategorized'}</p>
+          </div>
+          <div>
+            <span class="text-gray-600">Tags:</span>
+            <div class="flex flex-wrap gap-1 mt-1">
+              {post.data.tags.map(tag => (
+                <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">{tag}</span>
+              ))}
+            </div>
+          </div>
+          <div>
+            <span class="text-gray-600">Read Time:</span>
+            <p class="font-medium text-gray-900">{post.data.readTime || 'N/A'} min</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Frontmatter Editor -->
+      <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Frontmatter (YAML)</h2>
+        <textarea
+          id="frontmatter-editor"
+          class="w-full h-64 font-mono text-sm border border-gray-300 rounded-md p-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          readonly
+        >{frontmatter}</textarea>
+        <p class="text-xs text-gray-500 mt-2">File: <code>src/content/posts/{slug}.md</code></p>
+      </div>
+
+      <!-- Content Editor -->
+      <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-semibold text-gray-900">Content (Markdown)</h2>
+          <div class="flex space-x-2">
+            <a
+              href={`/posts/${slug}`}
+              target="_blank"
+              class="px-3 py-1 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 transition-colors"
+            >
+              Preview
+            </a>
+            <button
+              onclick="copyToClipboard()"
+              class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
+            >
+              Copy Content
+            </button>
+          </div>
+        </div>
+        <textarea
+          id="content-editor"
+          class="w-full h-96 font-mono text-sm border border-gray-300 rounded-md p-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          readonly
+        >{fileContent}</textarea>
+        <p class="text-xs text-gray-500 mt-2">
+          Word count: <strong>{fileContent.split(/\s+/).filter(w => w.length > 0).length}</strong> words
+        </p>
+      </div>
+
+      <!-- Actions -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Actions</h2>
+        <div class="flex space-x-4">
+          <a
+            href={`/posts/${slug}`}
+            target="_blank"
+            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+          >
+            View Published Post
+          </a>
+          <a
+            href="/admin/content"
+            class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+          >
+            Back to Content List
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function copyToClipboard() {
+      const content = document.getElementById('content-editor').value;
+      navigator.clipboard.writeText(content).then(() => {
+        alert('✅ Content copied to clipboard!');
+      }).catch(err => {
+        console.error('Failed to copy:', err);
+        alert('❌ Failed to copy. Check console for details.');
+      });
+    }
+    
+    window.copyToClipboard = copyToClipboard;
+  </script>
+</BaseLayout>
