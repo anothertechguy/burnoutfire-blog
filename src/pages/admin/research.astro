@@ -102,6 +102,7 @@ const seo = {
           </div>
           <div class="mt-4">
             <button 
+              id="run-all-research-btn"
               onclick="runAllResearch()"
               class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
             >
@@ -253,7 +254,7 @@ const seo = {
     async function runAllResearch() {
       if (!confirm('This will analyze all competitors via RSS feeds. This may take 30-60 seconds. Continue?')) return;
       
-      const button = event.target;
+      const button = document.getElementById('run-all-research-btn') || event?.target;
       showLoading(button, 'Researching all competitors...');
       
       // Show progress

@@ -2,9 +2,23 @@
 import BaseLayout from '../../components/Layout/BaseLayout.astro';
 import { SITE_CONFIG } from '../../config';
 import { PROFILE_QUESTIONS, buildProfileFromAnswers } from '../../utils/agents/knowledge/userProfileBuilder';
-import { getUserProfile, updateUserProfile } from '../../utils/agents/knowledge/userProfile';
+import { getUserProfile } from '../../utils/agents/knowledge/userProfile';
 
 const currentProfile = getUserProfile();
+
+// Map current profile back to question answers for pre-filling
+const currentAnswers: Record<string, any> = {
+  dual_income: currentProfile.situation.dualIncome ? 'yes' : 'no',
+  current_savings_rate: `${currentProfile.situation.savingsRate}%`,
+  current_income: currentProfile.situation.incomeLevel === 'high' ? '$200k-$300k' : currentProfile.situation.incomeLevel === 'moderate' ? '$100k-$150k' : 'Variable',
+  tone_preference: currentProfile.writingStyle.tone,
+  voice_style: currentProfile.writingStyle.voice,
+  content_examples: currentProfile.writingStyle.examples.join(', '),
+  target_audience: currentProfile.contentPreferences.topics,
+  fire_goals: currentProfile.situation.goals.filter(g => g.toLowerCase().includes('fire')),
+  life_goals: currentProfile.situation.goals.filter(g => !g.toLowerCase().includes('fire')).join(', '),
+};
+
 const questionsByCategory = PROFILE_QUESTIONS.reduce((acc, q) => {
   if (!acc[q.category]) acc[q.category] = [];
   acc[q.category].push(q);
@@ -19,169 +33,279 @@ const seo = {
 
 <BaseLayout title="User Profile Builder" description="Build your profile with intelligent questions" seo={seo}>
   <div class="min-h-screen bg-gray-50 py-12">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="mb-8">
         <a href="/admin" class="text-blue-600 hover:text-blue-800 mb-4 inline-block">← Back to Dashboard</a>
-        <h1 class="text-3xl font-bold text-gray-900">User Profile Builder</h1>
-        <p class="text-gray-600 mt-2">Answer questions to build an accurate profile. No assumptions - we'll ask what we need to know.</p>
+        <h1 class="text-3xl font-bold text-gray-900">User Profile</h1>
+        <p class="text-gray-600 mt-2">View and edit your profile. The AI uses this to write accurate content without assumptions.</p>
       </div>
 
-      <!-- Current Profile Summary -->
+      <!-- Current Profile Display -->
       <div class="bg-white rounded-lg shadow p-6 mb-6">
-        <h2 class="text-xl font-semibold text-gray-900 mb-4">Current Profile Summary</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-          <div>
-            <p class="text-gray-600">Income Level:</p>
-            <p class="font-medium text-gray-900 capitalize">{currentProfile.situation.incomeLevel}</p>
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-semibold text-gray-900">Current Profile</h2>
+          <span class="text-xs text-gray-500">Last updated: {new Date(currentProfile.lastUpdated).toLocaleDateString()}</span>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Financial Situation -->
+          <div class="border-l-4 border-blue-500 pl-4">
+            <h3 class="font-semibold text-gray-900 mb-3">Financial Situation</h3>
+            <div class="space-y-2 text-sm">
+              <div>
+                <span class="text-gray-600">Income Level:</span>
+                <span class="ml-2 font-medium text-gray-900 capitalize">{currentProfile.situation.incomeLevel}</span>
+              </div>
+              <div>
+                <span class="text-gray-600">Dual Income:</span>
+                <span class="ml-2 font-medium text-gray-900">{currentProfile.situation.dualIncome ? 'Yes' : 'No'}</span>
+              </div>
+              <div>
+                <span class="text-gray-600">Savings Rate:</span>
+                <span class="ml-2 font-medium text-gray-900">{currentProfile.situation.savingsRate}%</span>
+              </div>
+              <div>
+                <span class="text-gray-600">Strategy:</span>
+                <p class="mt-1 text-gray-700 text-xs">{currentProfile.situation.currentStrategy}</p>
+              </div>
+              <div>
+                <span class="text-gray-600">Goals:</span>
+                <ul class="mt-1 list-disc list-inside text-xs text-gray-700">
+                  {currentProfile.situation.goals.map(goal => (
+                    <li>{goal}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           </div>
-          <div>
-            <p class="text-gray-600">Dual Income:</p>
-            <p class="font-medium text-gray-900">{currentProfile.situation.dualIncome ? 'Yes' : 'No'}</p>
+
+          <!-- Writing Style -->
+          <div class="border-l-4 border-green-500 pl-4">
+            <h3 class="font-semibold text-gray-900 mb-3">Writing Style</h3>
+            <div class="space-y-2 text-sm">
+              <div>
+                <span class="text-gray-600">Tone:</span>
+                <div class="mt-1 flex flex-wrap gap-1">
+                  {currentProfile.writingStyle.tone.map(tone => (
+                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">{tone}</span>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <span class="text-gray-600">Voice:</span>
+                <span class="ml-2 font-medium text-gray-900">{currentProfile.writingStyle.voice}</span>
+              </div>
+              <div>
+                <span class="text-gray-600">Preferred Length:</span>
+                <span class="ml-2 font-medium text-gray-900">{currentProfile.writingStyle.preferredLength}</span>
+              </div>
+            </div>
           </div>
-          <div>
-            <p class="text-gray-600">Savings Rate:</p>
-            <p class="font-medium text-gray-900">{currentProfile.situation.savingsRate}%</p>
+
+          <!-- Content Preferences -->
+          <div class="border-l-4 border-purple-500 pl-4">
+            <h3 class="font-semibold text-gray-900 mb-3">Content Preferences</h3>
+            <div class="space-y-2 text-sm">
+              <div>
+                <span class="text-gray-600">Topics:</span>
+                <div class="mt-1 flex flex-wrap gap-1">
+                  {currentProfile.contentPreferences.topics.map(topic => (
+                    <span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">{topic}</span>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <span class="text-gray-600">Angles:</span>
+                <div class="mt-1 flex flex-wrap gap-1">
+                  {currentProfile.contentPreferences.angles.map(angle => (
+                    <span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">{angle}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <p class="text-gray-600">Last Updated:</p>
-            <p class="font-medium text-gray-900">{new Date(currentProfile.lastUpdated).toLocaleDateString()}</p>
+
+          <!-- Learnings -->
+          <div class="border-l-4 border-orange-500 pl-4">
+            <h3 class="font-semibold text-gray-900 mb-3">AI Learnings</h3>
+            <div class="space-y-2 text-sm">
+              <div>
+                <span class="text-gray-600">What Works:</span>
+                <span class="ml-2 text-gray-700">{currentProfile.learnings.whatWorks.length} items</span>
+              </div>
+              <div>
+                <span class="text-gray-600">What Doesn't Work:</span>
+                <span class="ml-2 text-gray-700">{currentProfile.learnings.whatDoesntWork.length} items</span>
+              </div>
+              <div>
+                <span class="text-gray-600">Feedback:</span>
+                <span class="ml-2 text-gray-700">{currentProfile.learnings.feedback.length} items</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Profile Builder Form -->
-      <form id="profile-form" class="space-y-8">
-        {Object.entries(questionsByCategory).map(([category, questions]) => (
-          <div class="bg-white rounded-lg shadow p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-4 capitalize">{category} Information</h2>
-            <div class="space-y-6">
-              {questions.map(question => (
-                <div class="border-l-4 border-blue-500 pl-4">
-                  <label class="block text-sm font-medium text-gray-900 mb-2">
-                    {question.question}
-                    {question.required && <span class="text-red-500 ml-1">*</span>}
-                  </label>
-                  {question.reasoning && (
-                    <p class="text-xs text-gray-500 mb-2 italic">Why we ask: {question.reasoning}</p>
-                  )}
-                  
-                  {question.type === 'text' && (
-                    <input
-                      type="text"
-                      name={question.id}
-                      id={question.id}
-                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      required={question.required}
-                    />
-                  )}
-                  
-                  {question.type === 'select' && question.options && (
-                    <select
-                      name={question.id}
-                      id={question.id}
-                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      required={question.required}
-                    >
-                      <option value="">Select an option...</option>
-                      {question.options.map(option => (
-                        <option value={option}>{option}</option>
-                      ))}
-                    </select>
-                  )}
-                  
-                  {question.type === 'multi-select' && question.options && (
-                    <div class="space-y-2">
-                      {question.options.map(option => (
-                        <label class="flex items-center">
-                          <input
-                            type="checkbox"
-                            name={question.id}
-                            value={option}
-                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                          />
-                          <span class="ml-2 text-sm text-gray-700">{option}</span>
-                        </label>
-                      ))}
-                    </div>
-                  )}
-                  
-                  {question.type === 'boolean' && (
-                    <div class="flex space-x-4">
-                      <label class="flex items-center">
-                        <input
-                          type="radio"
-                          name={question.id}
-                          value="yes"
-                          class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span class="ml-2 text-sm text-gray-700">Yes</span>
+      <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Update Profile</h2>
+        <p class="text-sm text-gray-600 mb-6">Answer questions to update your profile. Fields are pre-filled with current data.</p>
+        
+        <form id="profile-form" class="space-y-8">
+          {Object.entries(questionsByCategory).map(([category, questions]) => (
+            <div class="border border-gray-200 rounded-lg p-6">
+              <h2 class="text-lg font-semibold text-gray-900 mb-4 capitalize">{category} Information</h2>
+              <div class="space-y-6">
+                {questions.map(question => {
+                  const currentValue = currentAnswers[question.id];
+                  return (
+                    <div class="border-l-4 border-blue-500 pl-4">
+                      <label class="block text-sm font-medium text-gray-900 mb-2">
+                        {question.question}
+                        {question.required && <span class="text-red-500 ml-1">*</span>}
                       </label>
-                      <label class="flex items-center">
+                      {question.reasoning && (
+                        <p class="text-xs text-gray-500 mb-2 italic">💡 {question.reasoning}</p>
+                      )}
+                      
+                      {question.type === 'text' && (
                         <input
-                          type="radio"
+                          type="text"
                           name={question.id}
-                          value="no"
-                          class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          id={question.id}
+                          value={currentValue || ''}
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          required={question.required}
+                          placeholder={question.reasoning ? `Current: ${currentValue || 'Not set'}` : ''}
                         />
-                        <span class="ml-2 text-sm text-gray-700">No</span>
-                      </label>
+                      )}
+                      
+                      {question.type === 'select' && question.options && (
+                        <select
+                          name={question.id}
+                          id={question.id}
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          required={question.required}
+                        >
+                          <option value="">Select an option...</option>
+                          {question.options.map(option => (
+                            <option value={option} selected={option === currentValue}>
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                      
+                      {question.type === 'multi-select' && question.options && (
+                        <div class="space-y-2">
+                          {question.options.map(option => {
+                            const isSelected = Array.isArray(currentValue) 
+                              ? currentValue.includes(option)
+                              : currentValue === option;
+                            return (
+                              <label class="flex items-center">
+                                <input
+                                  type="checkbox"
+                                  name={question.id}
+                                  value={option}
+                                  checked={isSelected}
+                                  class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                />
+                                <span class="ml-2 text-sm text-gray-700">{option}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      )}
+                      
+                      {question.type === 'boolean' && (
+                        <div class="flex space-x-4">
+                          <label class="flex items-center">
+                            <input
+                              type="radio"
+                              name={question.id}
+                              value="yes"
+                              checked={currentValue === 'yes' || currentValue === true}
+                              class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span class="ml-2 text-sm text-gray-700">Yes</span>
+                          </label>
+                          <label class="flex items-center">
+                            <input
+                              type="radio"
+                              name={question.id}
+                              value="no"
+                              checked={currentValue === 'no' || currentValue === false}
+                              class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span class="ml-2 text-sm text-gray-700">No</span>
+                          </label>
+                        </div>
+                      )}
+                      
+                      {question.type === 'number' && (
+                        <input
+                          type="number"
+                          name={question.id}
+                          id={question.id}
+                          value={currentValue || ''}
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          required={question.required}
+                        />
+                      )}
+                      
+                      {question.type === 'date' && (
+                        <input
+                          type="date"
+                          name={question.id}
+                          id={question.id}
+                          value={currentValue || ''}
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          required={question.required}
+                        />
+                      )}
                     </div>
-                  )}
-                  
-                  {question.type === 'number' && (
-                    <input
-                      type="number"
-                      name={question.id}
-                      id={question.id}
-                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      required={question.required}
-                    />
-                  )}
-                  
-                  {question.type === 'date' && (
-                    <input
-                      type="date"
-                      name={question.id}
-                      id={question.id}
-                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      required={question.required}
-                    />
-                  )}
-                </div>
-              ))}
+                  );
+                })}
+              </div>
             </div>
+          ))}
+
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p class="text-sm text-blue-800">
+              <strong>💡 Smart Profile:</strong> The AI uses this profile to write accurate content. 
+              It will never assume financial details or personal information - it will ask when needed.
+            </p>
           </div>
-        ))}
 
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <p class="text-sm text-blue-800">
-            <strong>Note:</strong> Your answers help us write accurate content without making assumptions. 
-            We'll never assume financial details or personal information - we'll ask when we need to know.
-          </p>
-        </div>
-
-        <div class="flex justify-end space-x-4">
-          <button
-            type="button"
-            onclick="location.reload()"
-            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            Save Profile
-          </button>
-        </div>
-      </form>
+          <div class="flex justify-end space-x-4">
+            <button
+              type="button"
+              onclick="location.reload()"
+              class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              Save Profile
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
   <script>
     document.getElementById('profile-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
+      
+      const submitButton = e.target.querySelector('button[type="submit"]') as HTMLButtonElement;
+      const originalText = submitButton.textContent;
+      submitButton.disabled = true;
+      submitButton.textContent = 'Saving...';
       
       const formData = new FormData(e.target as HTMLFormElement);
       const answers: Record<string, any> = {};
@@ -200,12 +324,14 @@ const seo = {
         }
       }
       
-      // Handle checkboxes
+      // Handle checkboxes separately
       document.querySelectorAll('input[type="checkbox"]:checked').forEach((checkbox: HTMLInputElement) => {
         const name = checkbox.name;
         if (!answers[name]) answers[name] = [];
         if (!Array.isArray(answers[name])) answers[name] = [answers[name]];
-        answers[name].push(checkbox.value);
+        if (!answers[name].includes(checkbox.value)) {
+          answers[name].push(checkbox.value);
+        }
       });
       
       try {
@@ -213,22 +339,31 @@ const seo = {
         const { buildProfileFromAnswers } = await import('../../utils/agents/knowledge/userProfileBuilder');
         const profile = buildProfileFromAnswers(answers);
         
-        // Save via API (would need to create this endpoint)
-        const response = await fetch('/api/profile/update', {
+        // Save via API
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const apiUrl = isLocal 
+          ? '/api/profile/update'
+          : '/api/profile/update'; // Same for both
+        
+        const response = await fetch(apiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(profile),
         });
         
-        if (response.ok) {
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
           alert('✅ Profile saved successfully!');
-          location.reload();
+          setTimeout(() => location.reload(), 1000);
         } else {
-          alert('❌ Error saving profile. Check console for details.');
+          throw new Error(data.error || 'Unknown error');
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error:', error);
-        alert('❌ Error processing profile. Check console for details.');
+        alert(`❌ Error saving profile: ${error.message}\n\nCheck browser console for details.`);
+        submitButton.disabled = false;
+        submitButton.textContent = originalText;
       }
     });
   </script>
