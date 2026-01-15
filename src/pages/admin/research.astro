@@ -103,7 +103,6 @@ const seo = {
           <div class="mt-4">
             <button 
               id="run-all-research-btn"
-              onclick="window.runAllResearch(event)"
               class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
             >
               Run Full Competitor Research
@@ -384,22 +383,44 @@ const seo = {
       }
     }
     
-    // Make function globally available and add click listener
+    // Make function globally available
     window.runAllResearch = runAllResearch;
     console.log('🔵 [RESEARCH] runAllResearch function registered globally');
     
-    // Also try to attach event listener directly
-    document.addEventListener('DOMContentLoaded', () => {
+    // Attach event listener - try multiple times to ensure it works
+    function attachResearchButtonListener() {
       const button = document.getElementById('run-all-research-btn');
       if (button) {
-        console.log('🔵 [RESEARCH] Found button on DOMContentLoaded, attaching click listener');
-        button.addEventListener('click', (e) => {
+        console.log('🔵 [RESEARCH] Found button, attaching click listener');
+        // Remove any existing listeners
+        const newButton = button.cloneNode(true);
+        button.parentNode?.replaceChild(newButton, button);
+        // Attach listener to new button
+        newButton.addEventListener('click', (e) => {
           e.preventDefault();
+          e.stopPropagation();
+          console.log('🔵 [RESEARCH] Button clicked via event listener');
           runAllResearch(e);
         });
-      } else {
-        console.warn('⚠️ [RESEARCH] Button not found on DOMContentLoaded');
+        return true;
       }
-    });
+      return false;
+    }
+    
+    // Try immediately
+    if (!attachResearchButtonListener()) {
+      console.log('🔵 [RESEARCH] Button not found, waiting for DOMContentLoaded');
+      // Try on DOMContentLoaded
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+          attachResearchButtonListener();
+        });
+      } else {
+        // DOM already loaded, try again
+        setTimeout(() => {
+          attachResearchButtonListener();
+        }, 100);
+      }
+    }
   </script>
 </BaseLayout>
