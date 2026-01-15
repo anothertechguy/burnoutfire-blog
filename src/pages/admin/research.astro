@@ -1,6 +1,9 @@
 ---
 import BaseLayout from '../../components/Layout/BaseLayout.astro';
+import { findBestNiches } from '../../utils/agents/research/enhancedSerpAnalysis';
 import { SITE_CONFIG } from '../../config';
+
+const bestNiches = findBestNiches(10);
 
 const seo = {
   title: `Research Dashboard | ${SITE_CONFIG.title} Admin`,
@@ -14,7 +17,68 @@ const seo = {
       <div class="mb-8">
         <a href="/admin" class="text-blue-600 hover:text-blue-800 mb-4 inline-block">← Back to Dashboard</a>
         <h1 class="text-3xl font-bold text-gray-900">Research Dashboard</h1>
-        <p class="text-gray-600 mt-2">Competitor analysis, SERP insights, and content gaps</p>
+        <p class="text-gray-600 mt-2">Competitor analysis, SERP insights, and wide moat opportunities</p>
+      </div>
+
+      <!-- Wide Moat Opportunities -->
+      <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Best Wide Moat Opportunities</h2>
+        <p class="text-sm text-gray-600 mb-4">Niches with defensible competitive advantages and low competition</p>
+        <div class="space-y-4">
+          {bestNiches.map((niche, i) => (
+            <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-500 transition-colors">
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex-1">
+                  <div class="flex items-center space-x-3 mb-2">
+                    <span class="text-2xl font-bold text-gray-400">#{i + 1}</span>
+                    <h3 class="text-lg font-semibold text-gray-900">{niche.keyword}</h3>
+                    <span class={`px-2 py-1 text-xs rounded font-medium ${
+                      niche.competition === 'very_low' 
+                        ? 'bg-green-100 text-green-800' 
+                        : niche.competition === 'low'
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {niche.competition.replace('_', ' ')}
+                    </span>
+                    <span class={`px-2 py-1 text-xs rounded font-medium ${
+                      niche.opportunity === 'high'
+                        ? 'bg-purple-100 text-purple-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {niche.opportunity} opportunity
+                    </span>
+                  </div>
+                  <p class="text-sm text-gray-700 mb-2"><strong>Moat:</strong> {niche.moat}</p>
+                  <p class="text-sm text-gray-700 mb-2"><strong>Strategy:</strong> {niche.strategy}</p>
+                </div>
+                <div class="text-right ml-4">
+                  <div class="text-sm text-gray-600">Difficulty</div>
+                  <div class="text-2xl font-bold text-gray-900">{niche.difficulty}</div>
+                  <div class="text-xs text-gray-500">/ 100</div>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t">
+                <div>
+                  <p class="text-xs font-medium text-gray-700 mb-1">Related Keywords:</p>
+                  <div class="flex flex-wrap gap-1">
+                    {niche.relatedKeywords.slice(0, 5).map(kw => (
+                      <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">{kw}</span>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-gray-700 mb-1">Content Ideas:</p>
+                  <ul class="text-xs text-gray-600 space-y-1">
+                    {niche.contentIdeas.slice(0, 3).map(idea => (
+                      <li>• {idea}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <!-- Competitor Analysis -->
@@ -27,14 +91,23 @@ const seo = {
               <div class="border border-gray-200 rounded p-4">
                 <h4 class="font-semibold text-sm text-gray-900 mb-2">MrMoneyMustache</h4>
                 <p class="text-xs text-gray-600">Focus: FIRE philosophy, early retirement</p>
-                <p class="text-xs text-gray-500 mt-2">Avg word count: 1,800 | Last analyzed: 2 days ago</p>
+                <p class="text-xs text-gray-500 mt-2">Avg word count: 1,800 | Last analyzed: <button onclick="runResearch('MrMoneyMustache')" class="text-blue-600 hover:underline">Run analysis</button></p>
               </div>
               <div class="border border-gray-200 rounded p-4">
                 <h4 class="font-semibold text-sm text-gray-900 mb-2">Financial Samurai</h4>
                 <p class="text-xs text-gray-600">Focus: High income FIRE, wealth building</p>
-                <p class="text-xs text-gray-500 mt-2">Avg word count: 1,500 | Last analyzed: 2 days ago</p>
+                <p class="text-xs text-gray-500 mt-2">Avg word count: 1,500 | Last analyzed: <button onclick="runResearch('Financial Samurai')" class="text-blue-600 hover:underline">Run analysis</button></p>
               </div>
             </div>
+          </div>
+          <div class="mt-4">
+            <button 
+              onclick="runAllResearch()"
+              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            >
+              Run Full Competitor Research
+            </button>
+            <p class="text-xs text-gray-500 mt-2">This will scrape and analyze all competitors</p>
           </div>
         </div>
       </div>
@@ -46,12 +119,17 @@ const seo = {
           <div class="border-l-4 border-green-500 pl-4 py-2 bg-green-50">
             <h3 class="font-medium text-gray-900">High Priority</h3>
             <p class="text-sm text-gray-700">Intentional income reduction - Underserved by competitors</p>
-            <p class="text-xs text-gray-500 mt-1">Traffic potential: High | Competition: Low</p>
+            <p class="text-xs text-gray-500 mt-1">Traffic potential: High | Competition: Very Low | Moat: First mover advantage</p>
+          </div>
+          <div class="border-l-4 border-green-500 pl-4 py-2 bg-green-50">
+            <h3 class="font-medium text-gray-900">High Priority</h3>
+            <p class="text-sm text-gray-700">Dual income FIRE strategies - Limited coverage</p>
+            <p class="text-xs text-gray-500 mt-1">Traffic potential: High | Competition: Low | Moat: Specific to common situation</p>
           </div>
           <div class="border-l-4 border-yellow-500 pl-4 py-2 bg-yellow-50">
             <h3 class="font-medium text-gray-900">Medium Priority</h3>
-            <p class="text-sm text-gray-700">Dual income FIRE strategies - Limited coverage</p>
-            <p class="text-xs text-gray-500 mt-1">Traffic potential: Medium | Competition: Medium</p>
+            <p class="text-sm text-gray-700">Cash holdings for high earners - Nuanced view missing</p>
+            <p class="text-xs text-gray-500 mt-1">Traffic potential: Medium | Competition: Low | Moat: Contrarian angle</p>
           </div>
         </div>
       </div>
@@ -63,8 +141,9 @@ const seo = {
           <div>
             <h3 class="font-medium text-gray-900 mb-2">Featured Snippet Opportunities</h3>
             <ul class="text-sm text-gray-700 space-y-1">
-              <li>• "What is BurnoutFIRE?" - No current snippet</li>
-              <li>• "How to reduce income intentionally?" - Weak snippet</li>
+              <li>• "What is BurnoutFIRE?" - No current snippet (easy win)</li>
+              <li>• "How to reduce income intentionally?" - Weak snippet (can improve)</li>
+              <li>• "Dual income FIRE strategy" - No snippet (opportunity)</li>
             </ul>
           </div>
           <div>
@@ -73,10 +152,77 @@ const seo = {
               <li>• "Is reducing income worth it?"</li>
               <li>• "How much cash should high earners hold?"</li>
               <li>• "BurnoutFIRE vs CoastFIRE?"</li>
+              <li>• "Can you achieve FIRE with lower income?"</li>
             </ul>
+          </div>
+          <div>
+            <h3 class="font-medium text-gray-900 mb-2">Wide Moat Keywords</h3>
+            <div class="flex flex-wrap gap-2">
+              {bestNiches.slice(0, 5).map(niche => (
+                <span class="px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded font-medium">
+                  {niche.keyword}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <script>
+    async function runResearch(competitor) {
+      const button = event.target;
+      button.disabled = true;
+      button.textContent = 'Analyzing...';
+      
+      try {
+        const response = await fetch('/api/research/competitors', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ competitor }),
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          alert(`Analysis complete for ${competitor}! Refresh to see results.`);
+          location.reload();
+        } else {
+          alert('Error: ' + data.error);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error running research. Check console.');
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Run analysis';
+      }
+    }
+
+    async function runAllResearch() {
+      if (!confirm('This will analyze all competitors. Continue?')) return;
+      
+      const button = event.target;
+      button.disabled = true;
+      button.textContent = 'Researching all competitors...';
+      
+      try {
+        const response = await fetch('/api/research/competitors');
+        const data = await response.json();
+        
+        if (data.success) {
+          alert(`Analyzed ${data.profiles.length} competitors! Refresh to see results.`);
+          location.reload();
+        } else {
+          alert('Error: ' + data.error);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error running research. Check console.');
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Run Full Competitor Research';
+      }
+    }
+  </script>
 </BaseLayout>
