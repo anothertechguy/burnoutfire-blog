@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../../components/Layout/BaseLayout.astro';
+import { SITE_CONFIG } from '../../config';
+
+const seo = {
+  title: `Analytics | ${SITE_CONFIG.title} Admin`,
+  description: 'View analytics and performance',
+};
+---
+
+<BaseLayout title="Analytics" description="Analytics dashboard" seo={seo}>
+  <div class="min-h-screen bg-gray-50 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="mb-8">
+        <a href="/admin" class="text-blue-600 hover:text-blue-800 mb-4 inline-block">← Back to Dashboard</a>
+        <h1 class="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
+        <p class="text-gray-600 mt-2">Track performance, rankings, and growth metrics</p>
+      </div>
+
+      <!-- Key Metrics -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="text-2xl font-bold text-gray-900">3</div>
+          <div class="text-sm text-gray-600 mt-1">Total Posts</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="text-2xl font-bold text-gray-900">--</div>
+          <div class="text-sm text-gray-600 mt-1">Monthly Visitors</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="text-2xl font-bold text-gray-900">--</div>
+          <div class="text-sm text-gray-600 mt-1">Avg. Ranking</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="text-2xl font-bold text-gray-900">--</div>
+          <div class="text-sm text-gray-600 mt-1">Backlinks</div>
+        </div>
+      </div>
+
+      <!-- Performance Chart Placeholder -->
+      <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Traffic Trends</h2>
+        <div class="h-64 flex items-center justify-center border-2 border-dashed border-gray-300 rounded">
+          <p class="text-gray-500">Chart will appear here when analytics are connected</p>
+        </div>
+      </div>
+
+      <!-- Top Performing Content -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Top Performing Content</h2>
+        <div class="text-sm text-gray-600">
+          <p>Analytics data will appear here once connected to Google Analytics or Plausible.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

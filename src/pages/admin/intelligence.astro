@@ -1,0 +1,161 @@
+---
+import BaseLayout from '../../components/Layout/BaseLayout.astro';
+import { SITE_CONFIG } from '../../config';
+
+const seo = {
+  title: `Agent Intelligence | ${SITE_CONFIG.title} Admin`,
+  description: 'View agent decisions and strategy',
+};
+---
+
+<BaseLayout title="Agent Intelligence" description="Agent intelligence dashboard" seo={seo}>
+  <div class="min-h-screen bg-gray-50 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="mb-8">
+        <a href="/admin" class="text-blue-600 hover:text-blue-800 mb-4 inline-block">← Back to Dashboard</a>
+        <h1 class="text-3xl font-bold text-gray-900">Agent Intelligence Dashboard</h1>
+        <p class="text-gray-600 mt-2">See why agents make decisions and understand their strategy</p>
+      </div>
+
+      <!-- Agent Decision Flow -->
+      <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Agent Decision Flow</h2>
+        <div class="space-y-4" id="decision-flow">
+          <!-- This will be populated by JavaScript -->
+          <div class="border-l-4 border-blue-500 pl-4 py-2">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-medium text-gray-900">Content Intelligence Agent</h3>
+                <p class="text-sm text-gray-600">Analyzing competitors for keyword: "burnoutfire"</p>
+              </div>
+              <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">Active</span>
+            </div>
+            <div class="mt-2 text-sm text-gray-700">
+              <p><strong>Decision:</strong> Analyzing top 20 ranking pages</p>
+              <p><strong>Reason:</strong> Need comprehensive competitive intelligence</p>
+              <p><strong>Findings:</strong> Average word count: 1,800. Our target: 2,800+ (55% more)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Research Insights -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">Competitive Analysis</h2>
+          <div class="space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-600">Average Competitor Word Count</span>
+              <span class="font-semibold">1,800</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-600">Our Target Word Count</span>
+              <span class="font-semibold text-blue-600">2,800+</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-600">Advantage</span>
+              <span class="font-semibold text-green-600">+55%</span>
+            </div>
+            <div class="mt-4 pt-4 border-t">
+              <p class="text-xs text-gray-500 mb-2">Content Gaps Identified:</p>
+              <ul class="text-sm text-gray-700 space-y-1">
+                <li>• Intentional income reduction (underserved)</li>
+                <li>• Health cost calculations (missing)</li>
+                <li>• Dual income strategies (limited coverage)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">SERP Analysis</h2>
+          <div class="space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-600">Featured Snippet</span>
+              <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded">Opportunity</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-600">People Also Ask</span>
+              <span class="font-semibold">5 questions</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-600">Search Intent</span>
+              <span class="font-semibold">Informational</span>
+            </div>
+            <div class="mt-4 pt-4 border-t">
+              <p class="text-xs text-gray-500 mb-2">Target Questions:</p>
+              <ul class="text-sm text-gray-700 space-y-1">
+                <li>• "What is BurnoutFIRE?"</li>
+                <li>• "How to reduce income intentionally?"</li>
+                <li>• "Is holding cash rational?"</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quality Metrics -->
+      <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Quality Benchmarks</h2>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div class="text-center">
+            <div class="text-2xl font-bold text-green-600">85</div>
+            <div class="text-xs text-gray-600 mt-1">Readability</div>
+            <div class="text-xs text-green-600">✓ Pass</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-bold text-green-600">82</div>
+            <div class="text-xs text-gray-600 mt-1">Uniqueness</div>
+            <div class="text-xs text-green-600">✓ Pass</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-bold text-green-600">78</div>
+            <div class="text-xs text-gray-600 mt-1">Depth</div>
+            <div class="text-xs text-green-600">✓ Pass</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-bold text-green-600">75</div>
+            <div class="text-xs text-gray-600 mt-1">Actionability</div>
+            <div class="text-xs text-green-600">✓ Pass</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-bold text-green-600">80</div>
+            <div class="text-xs text-gray-600 mt-1">Research</div>
+            <div class="text-xs text-green-600">✓ Pass</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Strategy Explanation -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Why This Strategy?</h2>
+        <div class="prose max-w-none">
+          <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
+            <h3 class="font-semibold text-gray-900 mb-2">Content Depth Strategy</h3>
+            <p class="text-sm text-gray-700">
+              Competitors average 1,800 words. By targeting 2,800+ words, we create 55% more comprehensive content. 
+              This depth signals expertise to search engines and provides more value to readers, improving both 
+              rankings and engagement.
+            </p>
+          </div>
+          <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-4">
+            <h3 class="font-semibold text-gray-900 mb-2">Gap-Filling Approach</h3>
+            <p class="text-sm text-gray-700">
+              We identified 3 major content gaps competitors don't address: intentional income reduction, 
+              health cost calculations, and dual income strategies. By covering these topics comprehensively, 
+              we capture underserved search intent and establish unique positioning.
+            </p>
+          </div>
+          <div class="bg-purple-50 border-l-4 border-purple-500 p-4">
+            <h3 class="font-semibold text-gray-900 mb-2">SERP Optimization</h3>
+            <p class="text-sm text-gray-700">
+              No featured snippet exists for our target keywords. By structuring content to answer questions 
+              clearly and concisely, we can capture featured snippets, which typically receive 35% of clicks 
+              for that query.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

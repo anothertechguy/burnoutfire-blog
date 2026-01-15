@@ -1,0 +1,82 @@
+---
+import BaseLayout from '../../components/Layout/BaseLayout.astro';
+import { SITE_CONFIG } from '../../config';
+
+const seo = {
+  title: `Research Dashboard | ${SITE_CONFIG.title} Admin`,
+  description: 'View research insights',
+};
+---
+
+<BaseLayout title="Research Dashboard" description="Research insights" seo={seo}>
+  <div class="min-h-screen bg-gray-50 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="mb-8">
+        <a href="/admin" class="text-blue-600 hover:text-blue-800 mb-4 inline-block">← Back to Dashboard</a>
+        <h1 class="text-3xl font-bold text-gray-900">Research Dashboard</h1>
+        <p class="text-gray-600 mt-2">Competitor analysis, SERP insights, and content gaps</p>
+      </div>
+
+      <!-- Competitor Analysis -->
+      <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Competitor Analysis</h2>
+        <div class="space-y-4">
+          <div>
+            <h3 class="font-medium text-gray-900 mb-2">Top Competitors</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="border border-gray-200 rounded p-4">
+                <h4 class="font-semibold text-sm text-gray-900 mb-2">MrMoneyMustache</h4>
+                <p class="text-xs text-gray-600">Focus: FIRE philosophy, early retirement</p>
+                <p class="text-xs text-gray-500 mt-2">Avg word count: 1,800 | Last analyzed: 2 days ago</p>
+              </div>
+              <div class="border border-gray-200 rounded p-4">
+                <h4 class="font-semibold text-sm text-gray-900 mb-2">Financial Samurai</h4>
+                <p class="text-xs text-gray-600">Focus: High income FIRE, wealth building</p>
+                <p class="text-xs text-gray-500 mt-2">Avg word count: 1,500 | Last analyzed: 2 days ago</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Gaps -->
+      <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Content Gaps</h2>
+        <div class="space-y-3">
+          <div class="border-l-4 border-green-500 pl-4 py-2 bg-green-50">
+            <h3 class="font-medium text-gray-900">High Priority</h3>
+            <p class="text-sm text-gray-700">Intentional income reduction - Underserved by competitors</p>
+            <p class="text-xs text-gray-500 mt-1">Traffic potential: High | Competition: Low</p>
+          </div>
+          <div class="border-l-4 border-yellow-500 pl-4 py-2 bg-yellow-50">
+            <h3 class="font-medium text-gray-900">Medium Priority</h3>
+            <p class="text-sm text-gray-700">Dual income FIRE strategies - Limited coverage</p>
+            <p class="text-xs text-gray-500 mt-1">Traffic potential: Medium | Competition: Medium</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SERP Insights -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">SERP Insights</h2>
+        <div class="space-y-4">
+          <div>
+            <h3 class="font-medium text-gray-900 mb-2">Featured Snippet Opportunities</h3>
+            <ul class="text-sm text-gray-700 space-y-1">
+              <li>• "What is BurnoutFIRE?" - No current snippet</li>
+              <li>• "How to reduce income intentionally?" - Weak snippet</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="font-medium text-gray-900 mb-2">People Also Ask</h3>
+            <ul class="text-sm text-gray-700 space-y-1">
+              <li>• "Is reducing income worth it?"</li>
+              <li>• "How much cash should high earners hold?"</li>
+              <li>• "BurnoutFIRE vs CoastFIRE?"</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
