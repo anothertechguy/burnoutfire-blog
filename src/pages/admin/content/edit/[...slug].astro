@@ -18,42 +18,12 @@ let frontmatter = '';
 try {
   const entry = await getEntry('posts', slug);
   if (entry) {
-    // Get the raw body content
+    // Get the rendered body content (markdown converted to HTML)
+    // Note: Astro doesn't expose raw markdown easily, so we'll show the HTML
     fileContent = entry.body || '';
     
-    // Build frontmatter from entry data
-    const frontmatterData = {
-      title: entry.data.title,
-      description: entry.data.description,
-      publishDate: entry.data.publishDate,
-      updatedDate: entry.data.updatedDate,
-      tags: entry.data.tags,
-      category: entry.data.category,
-      seo: entry.data.seo,
-      relatedPosts: entry.data.relatedPosts,
-      readTime: entry.data.readTime,
-      monetization: entry.data.monetization,
-      research: entry.data.research,
-      draft: entry.data.draft,
-    };
-    
-    frontmatter = Object.entries(frontmatterData)
-      .filter(([_, v]) => v !== undefined && v !== null && (Array.isArray(v) ? v.length > 0 : true))
-      .map(([k, v]) => {
-        if (typeof v === 'string') {
-          return `${k}: "${v.replace(/"/g, '\\"')}"`;
-        } else if (typeof v === 'boolean' || typeof v === 'number') {
-          return `${k}: ${v}`;
-        } else if (v instanceof Date) {
-          return `${k}: ${v.toISOString().split('T')[0]}`;
-        } else if (Array.isArray(v)) {
-          return `${k}: [${v.map(item => typeof item === 'string' ? `"${item}"` : item).join(', ')}]`;
-        } else if (typeof v === 'object') {
-          return `${k}:\n${Object.entries(v).map(([sk, sv]) => `  ${sk}: ${typeof sv === 'string' ? `"${sv}"` : sv}`).join('\n')}`;
-        }
-        return `${k}: ${v}`;
-      })
-      .join('\n');
+    // Build frontmatter display from entry data
+    frontmatter = JSON.stringify(entry.data, null, 2);
   }
 } catch (error) {
   console.error('Error reading entry:', error);
@@ -117,44 +87,32 @@ const seo = {
         </div>
       </div>
 
-      <!-- Frontmatter Editor -->
+      <!-- Frontmatter Display -->
       <div class="bg-white rounded-lg shadow p-6 mb-6">
-        <h2 class="text-xl font-semibold text-gray-900 mb-4">Frontmatter (YAML)</h2>
-        <textarea
-          id="frontmatter-editor"
-          class="w-full h-64 font-mono text-sm border border-gray-300 rounded-md p-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          readonly
-        >{frontmatter}</textarea>
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Frontmatter (JSON)</h2>
+        <pre class="w-full h-64 font-mono text-sm border border-gray-300 rounded-md p-4 bg-gray-50 overflow-auto">{frontmatter}</pre>
         <p class="text-xs text-gray-500 mt-2">File: <code>src/content/posts/{slug}.md</code></p>
       </div>
 
-      <!-- Content Editor -->
+      <!-- Content Display -->
       <div class="bg-white rounded-lg shadow p-6 mb-6">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-semibold text-gray-900">Content (Markdown)</h2>
+          <h2 class="text-xl font-semibold text-gray-900">Content Preview</h2>
           <div class="flex space-x-2">
             <a
               href={`/posts/${slug}`}
               target="_blank"
               class="px-3 py-1 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 transition-colors"
             >
-              Preview
+              View Published
             </a>
-            <button
-              onclick="copyToClipboard()"
-              class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
-            >
-              Copy Content
-            </button>
           </div>
         </div>
-        <textarea
-          id="content-editor"
-          class="w-full h-96 font-mono text-sm border border-gray-300 rounded-md p-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          readonly
-        >{fileContent}</textarea>
+        <div class="prose max-w-none border border-gray-300 rounded-md p-4 bg-gray-50 min-h-96">
+          <article set:html={post.body} />
+        </div>
         <p class="text-xs text-gray-500 mt-2">
-          Word count: <strong>{fileContent.split(/\s+/).filter(w => w.length > 0).length}</strong> words
+          Word count: <strong>{post.data.readTime ? Math.round(post.data.readTime * 200) : 'N/A'}</strong> words (estimated)
         </p>
       </div>
 
@@ -180,17 +138,4 @@ const seo = {
     </div>
   </div>
 
-  <script>
-    function copyToClipboard() {
-      const content = document.getElementById('content-editor').value;
-      navigator.clipboard.writeText(content).then(() => {
-        alert('✅ Content copied to clipboard!');
-      }).catch(err => {
-        console.error('Failed to copy:', err);
-        alert('❌ Failed to copy. Check console for details.');
-      });
-    }
-    
-    window.copyToClipboard = copyToClipboard;
-  </script>
 </BaseLayout>
