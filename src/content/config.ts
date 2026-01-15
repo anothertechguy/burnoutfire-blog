@@ -11,7 +11,7 @@ const postsCollection = defineCollection({
     // Basic post information
     title: z.string(),
     description: z.string(),
-    slug: z.string().optional(), // Auto-generated from filename if not provided
+    // Note: slug is auto-generated from filename by Astro, don't include in schema
     
     // Dates
     publishDate: z.date(),
