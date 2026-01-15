@@ -91,12 +91,12 @@ const seo = {
               <div class="border border-gray-200 rounded p-4">
                 <h4 class="font-semibold text-sm text-gray-900 mb-2">MrMoneyMustache</h4>
                 <p class="text-xs text-gray-600">Focus: FIRE philosophy, early retirement</p>
-                <p class="text-xs text-gray-500 mt-2">Avg word count: 1,800 | Last analyzed: <button onclick="runResearch('MrMoneyMustache')" class="text-blue-600 hover:underline">Run analysis</button></p>
+                <p class="text-xs text-gray-500 mt-2">Avg word count: 1,800 | Last analyzed: <button onclick="runResearch('MrMoneyMustache')" class="text-blue-600 hover:underline cursor-pointer">Run analysis</button></p>
               </div>
               <div class="border border-gray-200 rounded p-4">
                 <h4 class="font-semibold text-sm text-gray-900 mb-2">Financial Samurai</h4>
                 <p class="text-xs text-gray-600">Focus: High income FIRE, wealth building</p>
-                <p class="text-xs text-gray-500 mt-2">Avg word count: 1,500 | Last analyzed: <button onclick="runResearch('Financial Samurai')" class="text-blue-600 hover:underline">Run analysis</button></p>
+                <p class="text-xs text-gray-500 mt-2">Avg word count: 1,500 | Last analyzed: <button onclick="runResearch('Financial Samurai')" class="text-blue-600 hover:underline cursor-pointer">Run analysis</button></p>
               </div>
             </div>
           </div>
@@ -171,57 +171,157 @@ const seo = {
   </div>
 
   <script>
-    async function runResearch(competitor) {
-      const button = event.target;
-      button.disabled = true;
-      button.textContent = 'Analyzing...';
+    // Show loading state
+    function showLoading(element, text) {
+      element.disabled = true;
+      element.dataset.originalText = element.textContent;
+      element.innerHTML = `<span class="inline-block animate-spin mr-2">⏳</span>${text}`;
+      element.classList.add('opacity-75', 'cursor-not-allowed');
+    }
+
+    // Hide loading state
+    function hideLoading(element) {
+      element.disabled = false;
+      element.textContent = element.dataset.originalText || 'Run analysis';
+      element.classList.remove('opacity-75', 'cursor-not-allowed');
+    }
+
+    // Show error message
+    function showError(message) {
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-lg z-50 max-w-md';
+      errorDiv.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span>❌ ${message}</span>
+          <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-red-700 hover:text-red-900">×</button>
+        </div>
+      `;
+      document.body.appendChild(errorDiv);
+      setTimeout(() => errorDiv.remove(), 5000);
+    }
+
+    // Show success message
+    function showSuccess(message) {
+      const successDiv = document.createElement('div');
+      successDiv.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-lg z-50 max-w-md';
+      successDiv.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span>✅ ${message}</span>
+          <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-green-700 hover:text-green-900">×</button>
+        </div>
+      `;
+      document.body.appendChild(successDiv);
+      setTimeout(() => successDiv.remove(), 5000);
+    }
+
+    // Client-side research function (works without API)
+    async function runClientSideResearch(competitorName) {
+      showSuccess(`Starting research for ${competitorName}...`);
       
       try {
+        // Import the research functions
+        const { runCompetitorResearch } = await import('/src/utils/agents/research/competitorScraper.js');
+        const { updateCompetitorProfile } = await import('/src/utils/agents/knowledge/competitorProfiles.js');
+        
+        // Run research
+        const profiles = await runCompetitorResearch();
+        const profile = profiles.find(p => p.name === competitorName);
+        
+        if (profile) {
+          showSuccess(`Research complete for ${competitorName}! Found ${profile.samplePosts.length} posts analyzed.`);
+          setTimeout(() => location.reload(), 2000);
+        } else {
+          showError(`Could not find profile for ${competitorName}. Research may have failed.`);
+        }
+      } catch (error) {
+        console.error('Research error:', error);
+        showError(`Research failed: ${error.message}. Check console for details.`);
+      }
+    }
+
+    async function runResearch(competitor) {
+      const button = event.target;
+      showLoading(button, 'Analyzing...');
+      
+      try {
+        // Try API first
         const response = await fetch('/api/research/competitors', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ competitor }),
         });
         
-        const data = await response.json();
-        if (data.success) {
-          alert(`Analysis complete for ${competitor}! Refresh to see results.`);
-          location.reload();
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            showSuccess(`Analysis complete for ${competitor}!`);
+            setTimeout(() => location.reload(), 2000);
+            return;
+          } else {
+            throw new Error(data.error || 'Unknown error');
+          }
         } else {
-          alert('Error: ' + data.error);
+          // API not available, try client-side
+          console.log('API not available, trying client-side research...');
+          await runClientSideResearch(competitor);
         }
       } catch (error) {
-        console.error('Error:', error);
-        alert('Error running research. Check console.');
-      } finally {
-        button.disabled = false;
-        button.textContent = 'Run analysis';
+        console.error('API error, trying client-side:', error);
+        // Fallback to client-side
+        try {
+          await runClientSideResearch(competitor);
+        } catch (clientError) {
+          console.error('Client-side error:', clientError);
+          showError(`Research failed. API endpoints may not be available in static mode. Try running 'npm run research' from terminal.`);
+          hideLoading(button);
+        }
       }
     }
 
     async function runAllResearch() {
-      if (!confirm('This will analyze all competitors. Continue?')) return;
+      if (!confirm('This will analyze all competitors via RSS feeds. This may take 30-60 seconds. Continue?')) return;
       
       const button = event.target;
-      button.disabled = true;
-      button.textContent = 'Researching all competitors...';
+      showLoading(button, 'Researching all competitors...');
+      
+      // Show progress
+      const progressDiv = document.createElement('div');
+      progressDiv.id = 'research-progress';
+      progressDiv.className = 'mt-4 p-4 bg-blue-50 border border-blue-200 rounded';
+      progressDiv.innerHTML = '<p class="text-sm text-blue-700">Starting research... This will take a moment.</p>';
+      button.parentElement.appendChild(progressDiv);
       
       try {
+        // Try API first
         const response = await fetch('/api/research/competitors');
-        const data = await response.json();
         
-        if (data.success) {
-          alert(`Analyzed ${data.profiles.length} competitors! Refresh to see results.`);
-          location.reload();
-        } else {
-          alert('Error: ' + data.error);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            progressDiv.innerHTML = `<p class="text-sm text-green-700">✅ Analyzed ${data.profiles.length} competitors!</p>`;
+            showSuccess(`Research complete! Analyzed ${data.profiles.length} competitors.`);
+            setTimeout(() => location.reload(), 2000);
+            return;
+          }
         }
+        
+        // API not available - show instructions
+        progressDiv.innerHTML = `
+          <p class="text-sm text-yellow-700 font-medium mb-2">⚠️ API not available in static mode</p>
+          <p class="text-sm text-gray-700 mb-2">To run research, use one of these options:</p>
+          <ol class="text-sm text-gray-700 list-decimal list-inside space-y-1">
+            <li>Run locally: <code class="bg-gray-200 px-1 rounded">npm run research</code></li>
+            <li>Or set up Netlify Functions for API endpoints</li>
+          </ol>
+        `;
+        showError('API endpoints not available. See instructions above.');
+        
       } catch (error) {
         console.error('Error:', error);
-        alert('Error running research. Check console.');
+        progressDiv.innerHTML = `<p class="text-sm text-red-700">❌ Error: ${error.message}</p>`;
+        showError('Research failed. Check console for details.');
       } finally {
-        button.disabled = false;
-        button.textContent = 'Run Full Competitor Research';
+        hideLoading(button);
       }
     }
   </script>
