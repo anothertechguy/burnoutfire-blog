@@ -1,0 +1,69 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { SITE_CONFIG } from '../../config';
+
+interface Props {
+  post?: CollectionEntry<'posts'>;
+  type?: 'Article' | 'BlogPosting' | 'WebSite';
+}
+
+const { post, type = 'WebSite' } = Astro.props;
+
+let schema: any;
+
+if (post && (type === 'Article' || type === 'BlogPosting')) {
+  // BlogPosting schema
+  schema = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.data.title,
+    description: post.data.description,
+    image: post.data.seo?.ogImage || `${SITE_CONFIG.url}${SITE_CONFIG.seo.ogImage}`,
+    datePublished: post.data.publishDate.toISOString(),
+    dateModified: post.data.updatedDate?.toISOString() || post.data.publishDate.toISOString(),
+    author: {
+      '@type': 'Person',
+      name: SITE_CONFIG.author.name,
+      description: SITE_CONFIG.author.bio,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: SITE_CONFIG.title,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${SITE_CONFIG.url}/logo.png`, // Update with actual logo
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${SITE_CONFIG.url}/posts/${post.slug}`,
+    },
+    keywords: post.data.seo?.keywords?.join(', ') || '',
+    articleSection: post.data.category || 'Personal Finance',
+    inLanguage: 'en-US',
+  };
+} else {
+  // WebSite schema
+  schema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: SITE_CONFIG.title,
+    description: SITE_CONFIG.description,
+    url: SITE_CONFIG.url,
+    publisher: {
+      '@type': 'Organization',
+      name: SITE_CONFIG.title,
+    },
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${SITE_CONFIG.url}/search?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  };
+}
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

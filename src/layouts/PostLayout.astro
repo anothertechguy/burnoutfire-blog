@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../components/Layout/BaseLayout.astro';
+import PostHeader from '../components/Blog/PostHeader.astro';
+import PostContent from '../components/Blog/PostContent.astro';
+import AuthorBio from '../components/Content/AuthorBio.astro';
+import RelatedPosts from '../components/Content/RelatedPosts.astro';
+import SchemaOrg from '../components/SEO/SchemaOrg.astro';
+import { addReadingTime } from '../utils/posts';
+import { generatePostSEO } from '../utils/seo';
+import { getRelatedPostsForPost } from '../utils/posts';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  post: CollectionEntry<'posts'>;
+}
+
+const { post } = Astro.props;
+const postWithReadingTime = addReadingTime(post);
+const seo = generatePostSEO(postWithReadingTime);
+const relatedPosts = await getRelatedPostsForPost(post, 3);
+---
+
+<BaseLayout title={post.data.title} description={post.data.description} seo={seo}>
+  <SchemaOrg post={post} type="BlogPosting" />
+  
+  <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <PostHeader post={postWithReadingTime} />
+    <PostContent post={post} />
+    <AuthorBio />
+    <RelatedPosts posts={relatedPosts} />
+  </article>
+</BaseLayout>

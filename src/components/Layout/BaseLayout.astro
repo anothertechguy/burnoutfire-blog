@@ -1,0 +1,40 @@
+---
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+import MetaTags from '../SEO/MetaTags.astro';
+import SchemaOrg from '../SEO/SchemaOrg.astro';
+import type { SEOData } from '../../utils/seo';
+import '../../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  seo?: SEOData;
+}
+
+const { title, description, seo } = Astro.props;
+
+const defaultSEO: SEOData = {
+  title,
+  description: description || '',
+  canonicalUrl: seo?.canonicalUrl,
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <MetaTags seo={seo || defaultSEO} />
+    <SchemaOrg />
+  </head>
+  <body>
+    <Header />
+    <main>
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
