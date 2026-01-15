@@ -264,10 +264,15 @@ const seo = {
       button.parentElement.appendChild(progressDiv);
       
       try {
-        // Call Netlify Function
+        // Use local API in dev, Netlify Function in prod
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const apiUrl = isLocal 
+          ? '/api/research/competitors-local'
+          : '/.netlify/functions/research-competitors';
+        
         progressDiv.innerHTML = '<p class="text-sm text-blue-700">⏳ Fetching competitor RSS feeds...</p>';
         
-        const response = await fetch('/.netlify/functions/research-competitors', {
+        const response = await fetch(apiUrl, {
           method: 'GET',
         });
         
