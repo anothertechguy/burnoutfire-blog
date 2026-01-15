@@ -57,6 +57,7 @@ Cash provides a buffer against this uncertainty. That buffer has real value.
 ### 1. Career Transitions
 
 If you're:
+
 - **Considering a pay cut**: Need buffer for income reduction
 - **Changing industries**: Income might be uncertain
 - **Starting a business**: Cash runway is critical
@@ -67,6 +68,7 @@ Cash gives you options that investments don't.
 ### 2. High Income, High Stress
 
 If you're:
+
 - **Burned out**: Might need to reduce income or take time off
 - **In volatile industry**: Tech, finance, consulting can be unstable
 - **Dependent on one income source**: Less diversification
@@ -82,7 +84,7 @@ While timing the market is usually a bad idea, holding cash during:
 - **Economic uncertainty**: Recession risks, inflation concerns
 - **Personal circumstances**: Major life changes coming
 
-...can be rational if it helps you sleep at night.
+…can be rational if it helps you sleep at night.
 
 ### 4. Opportunity Fund
 
@@ -138,6 +140,7 @@ There's no universal answer, but consider:
 - **Less than 3 months**: Risky for most people
 
 The right amount depends on:
+
 - Your income stability
 - Your expense flexibility
 - Your risk tolerance
@@ -150,6 +153,7 @@ Yes, holding cash has opportunity costs. But:
 ### It's Not All or Nothing
 
 You can:
+
 - **Hold cash for security**: 12-18 months expenses
 - **Invest the rest**: Everything beyond that
 - **Gradually deploy**: Move cash to investments over time
@@ -157,6 +161,7 @@ You can:
 ### The Cost Is Manageable
 
 For a $200k earner:
+
 - **18 months expenses**: ~$150k
 - **Opportunity cost**: ~$15k/year (7% returns + 3% inflation)
 - **As % of income**: 7.5%
@@ -166,6 +171,7 @@ That's significant, but not catastrophic. And if it provides security that enabl
 ### You Can Optimize
 
 Even with higher cash holdings:
+
 - **High-yield savings**: 4-5% currently
 - **CDs**: Lock in rates, slightly higher returns
 - **Treasury bills**: Safe, liquid, tax-advantaged
@@ -210,20 +216,21 @@ You don't have to choose between "all cash" or "all invested." Consider:
 
 ## Real-World Example
 
-I hold 18 months of expenses in cash because:
+My approach combines cash reserves with investments that remain untouched:
 
-- **Career uncertainty**: Tech industry, age considerations
-- **Income reduction**: Took 50% pay cut, wanted security
-- **Stress reduction**: Cash buffer reduces financial anxiety
-- **Flexibility**: Can take career risks, sabbaticals, opportunities
+- **Dual income strategy**: My wife and I use our jobs to cover all expenses
+- **Continued investing**: We max out 401(k)s and Roth IRAs every year
+- **Side hustle income**: Building additional revenue streams
+- **Untouched reserves**: Cash + investments provide security without being needed for expenses
 
-The opportunity cost is ~$15k/year. But:
-- **Reduced stress**: Priceless
-- **Career flexibility**: Enabled income reduction
-- **Better decisions**: Less pressure = better choices
-- **Peace of mind**: Can't quantify, but real
+This strategy works because:
 
-For me, it's worth it.
+- **Reduced stress**: Knowing reserves exist without needing to use them
+- **Career flexibility**: Can take risks knowing we have a safety net
+- **Better decisions**: Less financial pressure = better long-term choices
+- **Peace of mind**: Security that enables taking calculated risks
+
+The key is that these reserves provide psychological safety while our income covers expenses and we continue building wealth through tax-advantaged accounts and side income.
 
 ## Actionable Steps
 
