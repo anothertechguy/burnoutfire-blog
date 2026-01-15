@@ -81,7 +81,7 @@ const seo = {
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-xl font-semibold text-gray-900">Competitor Profiles</h2>
           <button 
-            onclick="runCompetitorResearch()"
+            id="run-competitor-research-btn"
             class="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
           >
             Run Research Now
@@ -275,8 +275,10 @@ const seo = {
   </div>
 
   <script>
-    async function runCompetitorResearch() {
-      const button = event.target;
+    async function runCompetitorResearch(event) {
+      console.log('🔵 [LEARNINGS] Button clicked!', { event, timestamp: new Date().toISOString() });
+      
+      const button = event?.target || document.getElementById('run-competitor-research-btn');
       const originalText = button.textContent;
       button.disabled = true;
       button.textContent = '⏳ Researching...';
@@ -320,6 +322,35 @@ const seo = {
       } finally {
         button.disabled = false;
         button.textContent = originalText;
+      }
+    }
+    
+    // Make function globally available
+    window.runCompetitorResearch = runCompetitorResearch;
+    
+    // Attach event listener
+    function attachLearningsButtonListener() {
+      const button = document.getElementById('run-competitor-research-btn');
+      if (button) {
+        console.log('🔵 [LEARNINGS] Found button, attaching click listener');
+        const newButton = button.cloneNode(true);
+        button.parentNode?.replaceChild(newButton, button);
+        newButton.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('🔵 [LEARNINGS] Button clicked via event listener');
+          runCompetitorResearch(e);
+        });
+        return true;
+      }
+      return false;
+    }
+    
+    if (!attachLearningsButtonListener()) {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', attachLearningsButtonListener);
+      } else {
+        setTimeout(attachLearningsButtonListener, 100);
       }
     }
   </script>

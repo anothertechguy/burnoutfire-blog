@@ -91,12 +91,12 @@ const seo = {
               <div class="border border-gray-200 rounded p-4">
                 <h4 class="font-semibold text-sm text-gray-900 mb-2">MrMoneyMustache</h4>
                 <p class="text-xs text-gray-600">Focus: FIRE philosophy, early retirement</p>
-                <p class="text-xs text-gray-500 mt-2">Avg word count: 1,800 | Last analyzed: <button onclick="runResearch('MrMoneyMustache')" class="text-blue-600 hover:underline cursor-pointer">Run analysis</button></p>
+                <p class="text-xs text-gray-500 mt-2">Avg word count: 1,800 | Last analyzed: <button data-competitor="MrMoneyMustache" class="run-research-btn text-blue-600 hover:underline cursor-pointer">Run analysis</button></p>
               </div>
               <div class="border border-gray-200 rounded p-4">
                 <h4 class="font-semibold text-sm text-gray-900 mb-2">Financial Samurai</h4>
                 <p class="text-xs text-gray-600">Focus: High income FIRE, wealth building</p>
-                <p class="text-xs text-gray-500 mt-2">Avg word count: 1,500 | Last analyzed: <button onclick="runResearch('Financial Samurai')" class="text-blue-600 hover:underline cursor-pointer">Run analysis</button></p>
+                <p class="text-xs text-gray-500 mt-2">Avg word count: 1,500 | Last analyzed: <button data-competitor="Financial Samurai" class="run-research-btn text-blue-600 hover:underline cursor-pointer">Run analysis</button></p>
               </div>
             </div>
           </div>
@@ -216,8 +216,10 @@ const seo = {
     }
 
 
-    async function runResearch(competitor) {
-      const button = event.target;
+    async function runResearch(competitor, event) {
+      console.log('🔵 [RESEARCH] runResearch called', { competitor, event });
+      
+      const button = event?.target || document.querySelector(`button[data-competitor="${competitor}"]`);
       showLoading(button, 'Analyzing...');
       
       try {
@@ -251,6 +253,30 @@ const seo = {
       }
     }
 
+    // Make functions globally available
+    window.runResearch = runResearch;
+    window.runAllResearch = runAllResearch;
+    
+    // Attach event listeners for individual competitor buttons
+    function attachCompetitorButtons() {
+      const buttons = document.querySelectorAll('.run-research-btn');
+      console.log('🔵 [RESEARCH] Found', buttons.length, 'competitor buttons');
+      buttons.forEach(button => {
+        const competitor = button.getAttribute('data-competitor');
+        if (competitor) {
+          const newButton = button.cloneNode(true);
+          button.parentNode?.replaceChild(newButton, button);
+          newButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🔵 [RESEARCH] Competitor button clicked:', competitor);
+            runResearch(competitor, e);
+          });
+        }
+      });
+      return buttons.length > 0;
+    }
+    
     async function runAllResearch(event) {
       console.log('🔵 [RESEARCH] Button clicked!', { event, timestamp: new Date().toISOString() });
       
@@ -383,23 +409,17 @@ const seo = {
       }
     }
     
-    // Make function globally available
-    window.runAllResearch = runAllResearch;
-    console.log('🔵 [RESEARCH] runAllResearch function registered globally');
-    
-    // Attach event listener - try multiple times to ensure it works
+    // Attach event listener for "Run All" button
     function attachResearchButtonListener() {
       const button = document.getElementById('run-all-research-btn');
       if (button) {
-        console.log('🔵 [RESEARCH] Found button, attaching click listener');
-        // Remove any existing listeners
+        console.log('🔵 [RESEARCH] Found "Run All" button, attaching click listener');
         const newButton = button.cloneNode(true);
         button.parentNode?.replaceChild(newButton, button);
-        // Attach listener to new button
         newButton.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
-          console.log('🔵 [RESEARCH] Button clicked via event listener');
+          console.log('🔵 [RESEARCH] "Run All" button clicked via event listener');
           runAllResearch(e);
         });
         return true;
@@ -407,19 +427,19 @@ const seo = {
       return false;
     }
     
+    // Initialize all button listeners
+    function initResearchButtons() {
+      attachCompetitorButtons();
+      attachResearchButtonListener();
+    }
+    
     // Try immediately
-    if (!attachResearchButtonListener()) {
-      console.log('🔵 [RESEARCH] Button not found, waiting for DOMContentLoaded');
-      // Try on DOMContentLoaded
+    if (!initResearchButtons()) {
+      console.log('🔵 [RESEARCH] Buttons not found, waiting for DOMContentLoaded');
       if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-          attachResearchButtonListener();
-        });
+        document.addEventListener('DOMContentLoaded', initResearchButtons);
       } else {
-        // DOM already loaded, try again
-        setTimeout(() => {
-          attachResearchButtonListener();
-        }, 100);
+        setTimeout(initResearchButtons, 100);
       }
     }
   </script>
