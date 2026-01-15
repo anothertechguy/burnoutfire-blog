@@ -2,7 +2,6 @@
 import BaseLayout from '../../../components/Layout/BaseLayout.astro';
 import { getPostBySlug } from '../../../../utils/posts';
 import { SITE_CONFIG } from '../../../../config';
-import { Content } from 'astro:content';
 
 const slug = Astro.params.slug || '';
 const post = await getPostBySlug(slug);
@@ -93,7 +92,7 @@ const seo = {
           </div>
         </div>
         <div class="prose max-w-none border border-gray-300 rounded-md p-4 bg-gray-50 min-h-96">
-          <Content body={post.body} />
+          {await post.render()}
         </div>
         <p class="text-xs text-gray-500 mt-2">
           Word count: <strong>{post.data.readTime ? Math.round(post.data.readTime * 200) : 'N/A'}</strong> words (estimated)
