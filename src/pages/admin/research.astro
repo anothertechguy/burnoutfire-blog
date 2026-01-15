@@ -214,30 +214,6 @@ const seo = {
       setTimeout(() => successDiv.remove(), 5000);
     }
 
-    // Client-side research function (works without API)
-    async function runClientSideResearch(competitorName) {
-      showSuccess(`Starting research for ${competitorName}...`);
-      
-      try {
-        // Import the research functions
-        const { runCompetitorResearch } = await import('/src/utils/agents/research/competitorScraper.js');
-        const { updateCompetitorProfile } = await import('/src/utils/agents/knowledge/competitorProfiles.js');
-        
-        // Run research
-        const profiles = await runCompetitorResearch();
-        const profile = profiles.find(p => p.name === competitorName);
-        
-        if (profile) {
-          showSuccess(`Research complete for ${competitorName}! Found ${profile.samplePosts.length} posts analyzed.`);
-          setTimeout(() => location.reload(), 2000);
-        } else {
-          showError(`Could not find profile for ${competitorName}. Research may have failed.`);
-        }
-      } catch (error) {
-        console.error('Research error:', error);
-        showError(`Research failed: ${error.message}. Check console for details.`);
-      }
-    }
 
     async function runResearch(competitor) {
       const button = event.target;
@@ -261,9 +237,24 @@ const seo = {
             throw new Error(data.error || 'Unknown error');
           }
         } else {
-          // API not available, try client-side
-          console.log('API not available, trying client-side research...');
-          await runClientSideResearch(competitor);
+          // API not available - show helpful instructions
+          console.log('API not available in static mode');
+          showError('API endpoints not available. See instructions below.');
+          
+          // Show instructions
+          const instructions = document.createElement('div');
+          instructions.className = 'fixed top-20 right-4 bg-yellow-50 border border-yellow-400 text-yellow-800 px-4 py-3 rounded shadow-lg z-50 max-w-md';
+          instructions.innerHTML = `
+            <div class="mb-2 font-medium">⚠️ Research Not Available</div>
+            <p class="text-sm mb-2">API endpoints don't work in static mode.</p>
+            <p class="text-sm font-medium mb-1">To run research:</p>
+            <ol class="text-sm list-decimal list-inside space-y-1 mb-2">
+              <li>Run locally: <code class="bg-yellow-200 px-1 rounded">npm run research</code></li>
+              <li>Or set up Netlify Functions</li>
+            </ol>
+            <button onclick="this.parentElement.remove()" class="text-xs text-yellow-700 hover:text-yellow-900">Close</button>
+          `;
+          document.body.appendChild(instructions);
         }
       } catch (error) {
         console.error('API error, trying client-side:', error);
