@@ -2,8 +2,7 @@
 import BaseLayout from '../../../components/Layout/BaseLayout.astro';
 import { getPostBySlug } from '../../../../utils/posts';
 import { SITE_CONFIG } from '../../../../config';
-import fs from 'fs';
-import path from 'path';
+import { getEntry } from 'astro:content';
 
 const slug = Astro.params.slug || '';
 const post = await getPostBySlug(slug);
@@ -12,21 +11,53 @@ if (!post) {
   return Astro.redirect('/admin/content');
 }
 
-// Read the actual markdown file
-const contentPath = path.join(process.cwd(), 'src/content/posts', `${slug}.md`);
+// Get the raw entry to access content
 let fileContent = '';
 let frontmatter = '';
 
 try {
-  fileContent = fs.readFileSync(contentPath, 'utf-8');
-  // Extract frontmatter and content
-  const frontmatterMatch = fileContent.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
-  if (frontmatterMatch) {
-    frontmatter = frontmatterMatch[1];
-    fileContent = frontmatterMatch[2];
+  const entry = await getEntry('posts', slug);
+  if (entry) {
+    // Get the raw body content
+    fileContent = entry.body || '';
+    
+    // Build frontmatter from entry data
+    const frontmatterData = {
+      title: entry.data.title,
+      description: entry.data.description,
+      publishDate: entry.data.publishDate,
+      updatedDate: entry.data.updatedDate,
+      tags: entry.data.tags,
+      category: entry.data.category,
+      seo: entry.data.seo,
+      relatedPosts: entry.data.relatedPosts,
+      readTime: entry.data.readTime,
+      monetization: entry.data.monetization,
+      research: entry.data.research,
+      draft: entry.data.draft,
+    };
+    
+    frontmatter = Object.entries(frontmatterData)
+      .filter(([_, v]) => v !== undefined && v !== null && (Array.isArray(v) ? v.length > 0 : true))
+      .map(([k, v]) => {
+        if (typeof v === 'string') {
+          return `${k}: "${v.replace(/"/g, '\\"')}"`;
+        } else if (typeof v === 'boolean' || typeof v === 'number') {
+          return `${k}: ${v}`;
+        } else if (v instanceof Date) {
+          return `${k}: ${v.toISOString().split('T')[0]}`;
+        } else if (Array.isArray(v)) {
+          return `${k}: [${v.map(item => typeof item === 'string' ? `"${item}"` : item).join(', ')}]`;
+        } else if (typeof v === 'object') {
+          return `${k}:\n${Object.entries(v).map(([sk, sv]) => `  ${sk}: ${typeof sv === 'string' ? `"${sv}"` : sv}`).join('\n')}`;
+        }
+        return `${k}: ${v}`;
+      })
+      .join('\n');
   }
 } catch (error) {
-  console.error('Error reading file:', error);
+  console.error('Error reading entry:', error);
+  fileContent = 'Error loading content. File may not exist.';
 }
 
 const seo = {
