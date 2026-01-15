@@ -2,7 +2,6 @@
 import BaseLayout from '../../../components/Layout/BaseLayout.astro';
 import { getPostBySlug } from '../../../../utils/posts';
 import { SITE_CONFIG } from '../../../../config';
-import { Fragment } from 'astro/jsx-runtime';
 
 const slug = Astro.params.slug || '';
 const post = await getPostBySlug(slug);
@@ -10,6 +9,9 @@ const post = await getPostBySlug(slug);
 if (!post) {
   return Astro.redirect('/admin/content');
 }
+
+// Render the post content
+const { Content } = await post.render();
 
 // Build frontmatter display from post data
 const frontmatter = JSON.stringify(post.data, null, 2);
@@ -93,7 +95,7 @@ const seo = {
           </div>
         </div>
         <div class="prose max-w-none border border-gray-300 rounded-md p-4 bg-gray-50 min-h-96">
-          <Fragment set:html={await (await post.render()).Content} />
+          <Content />
         </div>
         <p class="text-xs text-gray-500 mt-2">
           Word count: <strong>{post.data.readTime ? Math.round(post.data.readTime * 200) : 'N/A'}</strong> words (estimated)
