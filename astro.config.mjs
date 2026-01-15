@@ -10,9 +10,8 @@ export default defineConfig({
       applyBaseStyles: false, // We'll handle base styles in global.css
     }),
   ],
-  output: 'static',
-  // Enable server mode for API routes (hybrid mode)
-  adapter: undefined, // Keep static, but allow API routes in dev
+  output: 'hybrid', // Hybrid mode: static pages + API routes in dev
+  // API routes work in dev mode, static build for production
   site: 'https://burnoutfire.com', // Update with actual domain
   markdown: {
     shikiConfig: {

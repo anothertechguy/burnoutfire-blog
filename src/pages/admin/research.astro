@@ -220,8 +220,13 @@ const seo = {
       showLoading(button, 'Analyzing...');
       
       try {
-        // Call Netlify Function
-        const response = await fetch('/.netlify/functions/research-competitors?competitor=' + encodeURIComponent(competitor), {
+        // Use local API in dev, Netlify Function in prod
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const apiUrl = isLocal 
+          ? `/api/research/competitors-local?competitor=${encodeURIComponent(competitor)}`
+          : `/.netlify/functions/research-competitors?competitor=${encodeURIComponent(competitor)}`;
+        
+        const response = await fetch(apiUrl, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
         });
