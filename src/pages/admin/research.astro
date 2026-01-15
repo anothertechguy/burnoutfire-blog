@@ -220,52 +220,28 @@ const seo = {
       showLoading(button, 'Analyzing...');
       
       try {
-        // Try API first
-        const response = await fetch('/api/research/competitors', {
-          method: 'POST',
+        // Call Netlify Function
+        const response = await fetch('/.netlify/functions/research-competitors?competitor=' + encodeURIComponent(competitor), {
+          method: 'GET',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ competitor }),
         });
         
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success) {
-            showSuccess(`Analysis complete for ${competitor}!`);
-            setTimeout(() => location.reload(), 2000);
-            return;
-          } else {
-            throw new Error(data.error || 'Unknown error');
-          }
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          showSuccess(`Analysis complete for ${competitor}! Found ${data.profile?.samplePosts?.length || 0} posts analyzed.`);
+          setTimeout(() => location.reload(), 2000);
         } else {
-          // API not available - show helpful instructions
-          console.log('API not available in static mode');
-          showError('API endpoints not available. See instructions below.');
-          
-          // Show instructions
-          const instructions = document.createElement('div');
-          instructions.className = 'fixed top-20 right-4 bg-yellow-50 border border-yellow-400 text-yellow-800 px-4 py-3 rounded shadow-lg z-50 max-w-md';
-          instructions.innerHTML = `
-            <div class="mb-2 font-medium">⚠️ Research Not Available</div>
-            <p class="text-sm mb-2">API endpoints don't work in static mode.</p>
-            <p class="text-sm font-medium mb-1">To run research:</p>
-            <ol class="text-sm list-decimal list-inside space-y-1 mb-2">
-              <li>Run locally: <code class="bg-yellow-200 px-1 rounded">npm run research</code></li>
-              <li>Or set up Netlify Functions</li>
-            </ol>
-            <button onclick="this.parentElement.remove()" class="text-xs text-yellow-700 hover:text-yellow-900">Close</button>
-          `;
-          document.body.appendChild(instructions);
+          throw new Error(data.error || 'Unknown error');
         }
       } catch (error) {
-        console.error('API error, trying client-side:', error);
-        // Fallback to client-side
-        try {
-          await runClientSideResearch(competitor);
-        } catch (clientError) {
-          console.error('Client-side error:', clientError);
-          showError(`Research failed. API endpoints may not be available in static mode. Try running 'npm run research' from terminal.`);
-          hideLoading(button);
-        }
+        console.error('Research error:', error);
+        showError(`Research failed: ${error.message}. Check browser console for details.`);
+        hideLoading(button);
       }
     }
 
@@ -279,39 +255,34 @@ const seo = {
       const progressDiv = document.createElement('div');
       progressDiv.id = 'research-progress';
       progressDiv.className = 'mt-4 p-4 bg-blue-50 border border-blue-200 rounded';
-      progressDiv.innerHTML = '<p class="text-sm text-blue-700">Starting research... This will take a moment.</p>';
+      progressDiv.innerHTML = '<p class="text-sm text-blue-700">⏳ Starting research... This will take 30-60 seconds.</p>';
       button.parentElement.appendChild(progressDiv);
       
       try {
-        // Try API first
-        const response = await fetch('/api/research/competitors');
+        // Call Netlify Function
+        progressDiv.innerHTML = '<p class="text-sm text-blue-700">⏳ Fetching competitor RSS feeds...</p>';
         
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success) {
-            progressDiv.innerHTML = `<p class="text-sm text-green-700">✅ Analyzed ${data.profiles.length} competitors!</p>`;
-            showSuccess(`Research complete! Analyzed ${data.profiles.length} competitors.`);
-            setTimeout(() => location.reload(), 2000);
-            return;
-          }
+        const response = await fetch('/.netlify/functions/research-competitors', {
+          method: 'GET',
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         
-        // API not available - show instructions
-        progressDiv.innerHTML = `
-          <p class="text-sm text-yellow-700 font-medium mb-2">⚠️ API not available in static mode</p>
-          <p class="text-sm text-gray-700 mb-2">To run research, use one of these options:</p>
-          <ol class="text-sm text-gray-700 list-decimal list-inside space-y-1">
-            <li>Run locally: <code class="bg-gray-200 px-1 rounded">npm run research</code></li>
-            <li>Or set up Netlify Functions for API endpoints</li>
-          </ol>
-        `;
-        showError('API endpoints not available. See instructions above.');
+        const data = await response.json();
         
+        if (data.success) {
+          progressDiv.innerHTML = `<p class="text-sm text-green-700">✅ Analyzed ${data.count || data.profiles.length} competitors!</p><p class="text-xs text-gray-600 mt-1">Found ${data.profiles.reduce((sum, p) => sum + (p.samplePosts?.length || 0), 0)} posts total.</p>`;
+          showSuccess(`Research complete! Analyzed ${data.count || data.profiles.length} competitors. Refreshing...`);
+          setTimeout(() => location.reload(), 2000);
+        } else {
+          throw new Error(data.error || 'Unknown error');
+        }
       } catch (error) {
         console.error('Error:', error);
-        progressDiv.innerHTML = `<p class="text-sm text-red-700">❌ Error: ${error.message}</p>`;
-        showError('Research failed. Check console for details.');
-      } finally {
+        progressDiv.innerHTML = `<p class="text-sm text-red-700">❌ Error: ${error.message}</p><p class="text-xs text-gray-600 mt-1">Check browser console for details.</p>`;
+        showError(`Research failed: ${error.message}`);
         hideLoading(button);
       }
     }
