@@ -189,7 +189,12 @@ const seo = {
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                      <div class={`border-l-4 pl-4 py-2 bg-${comp.color}-50 border-${comp.color}-500`}>
+                      <div class={`border-l-4 pl-4 py-2 ${
+                        comp.color === 'green' ? 'bg-green-50 border-green-500' :
+                        comp.color === 'blue' ? 'bg-blue-50 border-blue-500' :
+                        comp.color === 'yellow' ? 'bg-yellow-50 border-yellow-500' :
+                        'bg-red-50 border-red-500'
+                      }`}>
                         <div class="font-semibold text-gray-900 mb-1">{comp.text}</div>
                         <div class="text-sm text-gray-700">{comp.meaning}</div>
                       </div>
